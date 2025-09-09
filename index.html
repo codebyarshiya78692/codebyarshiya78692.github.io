@@ -62,10 +62,55 @@
     <p>Email: contact@cozycoffee.com</p>
     <p>Phone: (123) 456-7890</p>
     <p>Address: 123 Coffee St, Bean Town</p>
+
+    <!-- Contact Form Starts Here -->
+    <form id="contact-form">
+      <input type="text" name="name" placeholder="Your Name" required />
+      <input type="email" name="email" placeholder="Your Email" required />
+      <textarea name="message" rows="4" placeholder="Your Message" required></textarea>
+      <button type="submit">Send</button>
+      <p id="form-response"></p>
+    </form>
   </section>
 
   <footer>
     <p>&copy; 2025 Cozy Coffee. All rights reserved.</p>
   </footer>
+
+  <script>
+    const form = document.getElementById('contact-form');
+    const responseMsg = document.getElementById('form-response');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      responseMsg.textContent = '';
+
+      const formData = {
+        name: form.name.value,
+        email: form.email.value,
+        message: form.message.value,
+      };
+
+      try {
+        const res = await fetch('http://localhost:3000/contact', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(formData),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          responseMsg.style.color = 'green';
+          responseMsg.textContent = data.status;
+          form.reset();
+        } else {
+          responseMsg.style.color = 'red';
+          responseMsg.textContent = data.error || 'Something went wrong';
+        }
+      } catch (err) {
+        responseMsg.style.color = 'red';
+        responseMsg.textContent = 'Error sending message';
+      }
+    });
+  </script>
 </body>
 </html>
