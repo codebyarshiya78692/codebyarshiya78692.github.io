@@ -2,50 +2,70 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>My Awesome Website</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cozy Coffee Shop</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
-    <nav>
-      <h1>MySite</h1>
-      <ul>
-        <li><a href="#">Home</a></li>
+    <nav class="navbar">
+      <div class="logo">Cozy Coffee</div>
+      <ul class="nav-links">
         <li><a href="#about">About</a></li>
-        <li><a href="#projects">Projects</a></li>
+        <li><a href="#menu">Menu</a></li>
         <li><a href="#contact">Contact</a></li>
       </ul>
     </nav>
   </header>
 
   <section class="hero">
-    <h2>Welcome to My Website</h2>
-    <p>This is a place where I share my projects and ideas.</p>
-    <a href="#projects" class="btn">View Projects</a>
+    <div class="hero-text">
+      <h1>Welcome to Cozy Coffee</h1>
+      <p>Freshly brewed happiness in every cup.</p>
+      <a href="#menu" class="btn">See Our Menu</a>
+    </div>
   </section>
 
-  <section id="about">
-    <h2>About Me</h2>
-    <p>I’m a passionate web developer learning how to build awesome things online.</p>
+  <section id="about" class="about-section">
+    <h2>About Us</h2>
+    <p>At Cozy Coffee, we serve the finest coffee blends, baked goods, and a warm atmosphere for everyone.</p>
   </section>
 
-  <section id="projects">
-    <h2>Projects</h2>
-    <ul class="projects">
-      <li>Portfolio Website</li>
-      <li>JavaScript Calculator</li>
-      <li>To-Do App</li>
-    </ul>
+  <section id="menu" class="menu-section">
+    <h2>Our Menu</h2>
+    <div class="menu-items">
+      <div class="menu-item">
+        <h3>Espresso</h3>
+        <p>Rich and bold espresso shot to kickstart your day.</p>
+        <span>$2.50</span>
+      </div>
+      <div class="menu-item">
+        <h3>Cappuccino</h3>
+        <p>Espresso with steamed milk foam, perfect for mornings.</p>
+        <span>$3.50</span>
+      </div>
+      <div class="menu-item">
+        <h3>Latte</h3>
+        <p>Smooth espresso with creamy steamed milk.</p>
+        <span>$4.00</span>
+      </div>
+      <div class="menu-item">
+        <h3>Mocha</h3>
+        <p>Chocolate-infused espresso for a sweet treat.</p>
+        <span>$4.50</span>
+      </div>
+    </div>
   </section>
 
-  <section id="contact">
-    <h2>Contact Me</h2>
-    <p>Email: youremail@example.com</p>
+  <section id="contact" class="contact-section">
+    <h2>Contact Us</h2>
+    <p>Email: contact@cozycoffee.com</p>
+    <p>Phone: (123) 456-7890</p>
+    <p>Address: 123 Coffee St, Bean Town</p>
   </section>
 
   <footer>
-    <p>&copy; 2025 MySite. All rights reserved.</p>
+    <p>&copy; 2025 Cozy Coffee. All rights reserved.</p>
   </footer>
 </body>
 </html>
