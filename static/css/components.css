@@ -1,0 +1,32 @@
+.container {
+    width: min(1200px, 90%);
+    margin: 0 auto;
+}
+
+.section {
+    padding: var(--space-xl) 0;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.85rem 1.5rem;
+    border-radius: 999px;
+    transition:
+        transform var(--duration-fast) var(--ease-smooth),
+        background var(--duration-fast) ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.btn-primary {
+    background: var(--color-primary);
+    color: var(--color-text-light);
+}
+
+.btn-primary:hover {
+    background: var(--color-secondary);
+}
