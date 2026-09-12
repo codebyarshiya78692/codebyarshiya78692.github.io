@@ -2,7 +2,6 @@
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,19 +12,104 @@
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <link rel="stylesheet" href="{% static 'css/components.css' %}">
     <link rel="stylesheet" href="{% static 'css/animations.css' %}">
-
-    {% block extra_css %}{% endblock %}
 </head>
 
 <body>
 
+<header class="site-header">
+    <div class="nav-container">
+
+        <a href="{% url 'home' %}" class="brand">
+            <span class="brand-mark">☕</span>
+            <span>
+                <strong>IDDS</strong>
+                <small>Integrated Digital Dining</small>
+            </span>
+        </a>
+
+        <nav class="main-nav">
+
+            <a href="{% url 'home' %}">Home</a>
+
+            <a href="{% url 'restaurant:menu' %}">Menu</a>
+
+            <a href="{% url 'orders:cart' %}" class="cart-link">
+                Cart
+                {% if request.session.cart %}
+                    <span class="cart-badge">
+                        {{ request.session.cart|length }}
+                    </span>
+                {% endif %}
+            </a>
+
+            {% if user.is_authenticated %}
+
+                {% if user.is_staff %}
+                    <a href="/admin/">Admin</a>
+                {% else %}
+                    <a href="{% url 'accounts:dashboard' %}">Dashboard</a>
+                    <a href="{% url 'orders:my_orders' %}">My Orders</a>
+                {% endif %}
+
+                <form method="post"
+                      action="{% url 'accounts:logout' %}"
+                      class="logout-form">
+                    {% csrf_token %}
+                    <button type="submit" class="nav-logout">
+                        Logout
+                    </button>
+                </form>
+
+            {% else %}
+
+                <a href="{% url 'accounts:login' %}" class="nav-login">
+                    Login
+                </a>
+
+            {% endif %}
+
+        </nav>
+
+    </div>
+</header>
+
+
+<main>
+    {% if messages %}
+        <div class="global-messages">
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     {% block content %}
     {% endblock %}
+</main>
 
-    <script src="{% static 'js/main.js' %}"></script>
 
-    {% block extra_js %}{% endblock %}
+<footer class="site-footer">
+    <div class="footer-container">
+
+        <div>
+            <strong>IDDS</strong>
+            <p>Integrated Digital Dining System</p>
+        </div>
+
+        <div>
+            <p>Smart dining. Simple service.</p>
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        © 2026 IDDS. All rights reserved.
+    </div>
+</footer>
+
+<script src="{% static 'js/main.js' %}"></script>
 
 </body>
-
 </html>

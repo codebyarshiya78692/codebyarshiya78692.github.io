@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Menu | IDDS{% endblock %}
+
+{% block content %}
+
+<section class="menu-page">
+
+    <div class="page-container">
+
+        <div class="menu-heading">
+            <div>
+                <p class="eyebrow">OUR MENU</p>
+
+                <h1>Made for your table.</h1>
+
+                <p>
+                    Explore our dishes and add your favourites to your order.
+                </p>
+            </div>
+
+            <a href="{% url 'orders:cart' %}" class="btn btn-primary">
+                🛒 View Cart
+            </a>
+        </div>
+
+
+        <!-- CATEGORY FILTERS -->
+
+        <div class="category-filters">
+
+            <a href="{% url 'restaurant:menu' %}"
+               class="{% if not selected_category %}active{% endif %}">
+                All
+            </a>
+
+            {% for category in categories %}
+
+                <a href="{% url 'restaurant:menu' %}?category={{ category.id }}"
+                   class="{% if selected_category|stringformat:'s' == category.id|stringformat:'s' %}active{% endif %}">
+                    {{ category.name }}
+                </a>
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- MENU ITEMS -->
+
+        {% if items %}
+
+            <div class="menu-grid">
+
+                {% for item in items %}
+
+                    <article class="menu-card">
+
+                        <div class="menu-card-image">
+                            🍽️
+                        </div>
+
+                        <div class="menu-card-body">
+
+                            <span class="menu-category">
+                                {{ item.category.name }}
+                            </span>
+
+                            <h2>{{ item.name }}</h2>
+
+                            {% if item.description %}
+                                <p>{{ item.description }}</p>
+                            {% else %}
+                                <p>
+                                    A delicious selection prepared fresh for you.
+                                </p>
+                            {% endif %}
+
+                            <div class="menu-card-bottom">
+
+                                <strong class="menu-price">
+                                    ₹{{ item.price }}
+                                </strong>
+
+                                <form method="post"
+                                      action="{% url 'orders:add_to_cart' item.id %}">
+                                    {% csrf_token %}
+
+                                    <button type="submit"
+                                            class="btn btn-primary">
+                                        Add to Cart
+                                    </button>
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-menu">
+
+                <div>🍽️</div>
+
+                <h2>No dishes available</h2>
+
+                <p>
+                    There are currently no available menu items.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+{% endblock %}

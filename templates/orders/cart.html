@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}Your Cart | IDDS{% endblock %}
+
+{% block content %}
+
+<section class="cart-page">
+    <div class="page-container">
+
+        <div class="menu-heading">
+            <div>
+                <p class="eyebrow">YOUR ORDER</p>
+                <h1>Your Cart</h1>
+                <p>Review your selections before placing your order.</p>
+            </div>
+
+            <a href="{% url 'restaurant:menu' %}" class="btn btn-secondary">
+                ← Continue Ordering
+            </a>
+        </div>
+
+        {% if cart_items %}
+
+        <div class="cart-layout">
+
+            <!-- CART ITEMS -->
+            <div class="cart-items">
+
+                {% for entry in cart_items %}
+
+                <div class="cart-item">
+
+                    <div class="cart-item-icon">
+                        🍽️
+                    </div>
+
+                    <div class="cart-item-details">
+                        <span class="menu-category">
+                            {{ entry.item.category.name }}
+                        </span>
+
+                        <h2>{{ entry.item.name }}</h2>
+
+                        <p>₹{{ entry.item.price }} each</p>
+                    </div>
+
+                    <form method="post"
+                          action="{% url 'orders:update_cart' entry.item.id %}"
+                          class="quantity-form">
+
+                        {% csrf_token %}
+
+                        <div class="quantity-control">
+                            <button type="submit"
+                                    name="quantity"
+                                    value="{{ entry.quantity|add:'-1' }}">
+                                −
+                            </button>
+
+                            <span>{{ entry.quantity }}</span>
+
+                            <button type="submit"
+                                    name="quantity"
+                                    value="{{ entry.quantity|add:'1' }}">
+                                +
+                            </button>
+                        </div>
+
+                    </form>
+
+                    <div class="cart-item-total">
+                        <strong>₹{{ entry.line_total }}</strong>
+
+                        <form method="post"
+                              action="{% url 'orders:remove_from_cart' entry.item.id %}">
+                            {% csrf_token %}
+
+                            <button type="submit" class="remove-link">
+                                Remove
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+
+            <!-- CHECKOUT -->
+            <aside class="checkout-card">
+
+                <p class="eyebrow">CHECKOUT</p>
+
+                <h2>Complete your order</h2>
+
+                <div class="checkout-total">
+                    <span>Total</span>
+                    <strong>₹{{ cart_total }}</strong>
+                </div>
+
+                <form method="post"
+                      action="{% url 'orders:place_order' %}"
+                      class="checkout-form">
+
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label for="table_id">
+                            Select your table
+                        </label>
+
+                        <select id="table_id"
+                                name="table_id"
+                                required>
+
+                            <option value="">
+                                Choose a table
+                            </option>
+
+                            {% for table in available_tables %}
+
+                                <option value="{{ table.id }}">
+                                    Table {{ table.table_number }}
+                                </option>
+
+                            {% empty %}
+
+                                <option value="" disabled>
+                                    No tables currently available
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="special_instructions">
+                            Special instructions
+                            <span>(optional)</span>
+                        </label>
+
+                        <textarea
+                            id="special_instructions"
+                            name="special_instructions"
+                            rows="4"
+                            placeholder="Any allergies, preferences, or requests?"></textarea>
+
+                    </div>
+
+
+                    <button type="submit"
+                            class="btn btn-primary btn-full"
+                            {% if not available_tables %}disabled{% endif %}>
+                        Place Order
+                    </button>
+
+                </form>
+
+            </aside>
+
+        </div>
+
+        {% else %}
+
+        <div class="empty-menu">
+
+            <div>🛒</div>
+
+            <h2>Your cart is empty</h2>
+
+            <p>
+                Add something delicious from our menu.
+            </p>
+
+            <a href="{% url 'restaurant:menu' %}"
+               class="btn btn-primary">
+                Browse Menu
+            </a>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+</section>
+
+{% endblock %}

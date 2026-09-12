@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}My Orders | IDDS{% endblock %}
+
+{% block content %}
+
+<section class="dashboard-page">
+    <div class="page-container">
+
+        <div class="dashboard-heading">
+            <div>
+                <p class="eyebrow">ORDER HISTORY</p>
+                <h1>My Orders</h1>
+                <p>View your current and previous dining orders.</p>
+            </div>
+
+            <a href="{% url 'restaurant:menu' %}" class="btn btn-primary">
+                Browse Menu
+            </a>
+        </div>
+
+        {% if orders %}
+
+            <div class="orders-list">
+
+                {% for order in orders %}
+
+                    <div class="order-row">
+
+                        <div>
+                            <strong>
+                                Order #{{ order.id }}
+                            </strong>
+
+                            <span>
+                                Table {{ order.session.table.table_number }}
+                            </span>
+
+                            <span>
+                                {{ order.created_at|date:"d M Y, h:i A" }}
+                            </span>
+                        </div>
+
+                        <div class="order-row-right">
+
+                            <span class="order-status">
+                                {{ order.get_status_display }}
+                            </span>
+
+                            <strong>
+                                ₹{{ order.total_amount }}
+                            </strong>
+
+                            <a href="{% url 'orders:order_detail' order.id %}">
+                                View Order →
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-menu">
+
+                <div>📋</div>
+
+                <h2>No orders yet</h2>
+
+                <p>
+                    Your order history will appear here after you place an order.
+                </p>
+
+                <a href="{% url 'restaurant:menu' %}"
+                   class="btn btn-primary">
+                    Explore Menu
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+</section>
+
+{% endblock %}
