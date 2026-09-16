@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}
+Billing | IDDS
+{% endblock %}
+
+{% block content %}
+
+<section class="page-shell">
+
+    <div class="page-heading">
+
+        <div>
+            <span class="eyebrow">FINANCE &amp; CHECKOUT</span>
+
+            <h1>Billing</h1>
+
+            <p>
+                Manage active dining sessions and generated bills.
+            </p>
+        </div>
+
+    </div>
+
+
+    <div class="report-section">
+
+        <div class="section-heading">
+            <div>
+                <span class="eyebrow">ACTIVE DINING</span>
+                <h2>Sessions Ready for Billing</h2>
+            </div>
+        </div>
+
+
+        <div class="report-table-wrapper">
+
+            <table class="report-table">
+
+                <thead>
+                    <tr>
+                        <th>Table</th>
+                        <th>Customer</th>
+                        <th>Orders</th>
+                        <th>Session Total</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for session in active_sessions %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                Table {{ session.table.table_number }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ session.customer_name|default:"Guest" }}
+                        </td>
+
+                        <td>
+                            {{ session.orders.all|length }}
+                        </td>
+
+                        <td>
+                            ₹{{ session.total_amount|floatformat:2 }}
+                        </td>
+
+                        <td>
+
+                            <a
+                                href="{% url 'billing:generate_bill' session.id %}"
+                                class="button"
+                            >
+                                Generate Bill
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="5">
+                            No active dining sessions found.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <div class="report-section">
+
+        <div class="section-heading">
+            <div>
+                <span class="eyebrow">BILL HISTORY</span>
+                <h2>Generated Bills</h2>
+            </div>
+        </div>
+
+
+        <div class="report-table-wrapper">
+
+            <table class="report-table">
+
+                <thead>
+                    <tr>
+                        <th>Bill</th>
+                        <th>Table</th>
+                        <th>Status</th>
+                        <th>Total</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for bill in bills %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                #{{ bill.id }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            Table {{ bill.session.table.table_number }}
+                        </td>
+
+                        <td>
+                            {{ bill.get_status_display }}
+                        </td>
+
+                        <td>
+                            ₹{{ bill.total_amount|floatformat:2 }}
+                        </td>
+
+                        <td>
+
+                            <a
+                                href="{% url 'billing:bill_detail' bill.id %}"
+                                class="button"
+                            >
+                                View Bill
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="5">
+                            No bills generated yet.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

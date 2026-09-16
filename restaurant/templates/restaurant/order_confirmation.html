@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}
+IDDS | Order Confirmed
+{% endblock %}
+
+
+{% block content %}
+
+<section class="section page-section">
+
+    <div class="container narrow-container">
+
+        <div class="confirmation-card reveal">
+
+
+            <!-- SUCCESS ICON -->
+
+            <div
+                style="
+                    width: 72px;
+                    height: 72px;
+                    display: grid;
+                    place-items: center;
+                    margin-bottom: 1.5rem;
+                    border-radius: 50%;
+                    background: var(--color-primary);
+                    color: #ffffff;
+                    font-size: 2rem;
+                    box-shadow: 0 15px 35px rgba(107,79,58,.20);
+                "
+            >
+                ✓
+            </div>
+
+
+            <p class="eyebrow">
+                ORDER RECEIVED
+            </p>
+
+
+            <h1>
+                Your order is on its way to the kitchen.
+            </h1>
+
+
+            <p style="
+                margin-top: 1rem;
+                color: var(--color-text-muted);
+                line-height: 1.7;
+            ">
+
+                Order
+                <strong>#{{ order.id }}</strong>
+
+                ·
+
+                Table
+                <strong>{{ session.table.table_number }}</strong>
+
+            </p>
+
+
+            <!-- ORDER ITEMS -->
+
+            <div
+                style="
+                    margin-top: 2rem;
+                    padding-top: 1rem;
+                    border-top: 1px solid var(--color-border);
+                "
+            >
+
+                <p class="eyebrow">
+                    YOUR ORDER
+                </p>
+
+
+                {% for item in order.items.all %}
+
+                    <div class="summary-row">
+
+                        <span>
+                            {{ item.item_name }}
+                            × {{ item.quantity }}
+                        </span>
+
+                        <strong>
+                            ₹{{ item.total_price }}
+                        </strong>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+
+            <!-- TOTAL -->
+
+            <div class="confirmation-total">
+
+                <span>
+                    Order Total
+                </span>
+
+                <strong>
+                    ₹{{ order.total_amount }}
+                </strong>
+
+            </div>
+
+
+            <!-- ACTIONS -->
+
+            <div class="confirmation-actions">
+
+                <a
+                    href="{% url 'order_tracking' order.id %}"
+                    class="btn btn-primary btn-large"
+                >
+                    Track My Order
+                    <span>→</span>
+                </a>
+
+
+                <a
+                    href="{% url 'menu' session.table.id %}"
+                    class="back-link"
+                    style="
+                        display: block;
+                        margin-top: 1rem;
+                        text-align: center;
+                    "
+                >
+                    Return to menu
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

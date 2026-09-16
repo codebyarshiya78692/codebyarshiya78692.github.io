@@ -6,31 +6,243 @@ IDDS | Integrated Digital Dining System
 
 {% block content %}
 
-<section class="section">
+<!-- =========================
+     HERO
+     ========================= -->
+<section class="hero-section">
+
     <div class="container">
 
-        <div class="reveal">
+        <div class="hero-content reveal">
 
-            <p>INTEGRATED DIGITAL DINING SYSTEM</p>
+            <p class="eyebrow">
+                INTEGRATED DIGITAL DINING SYSTEM
+            </p>
 
             <h1>
-                A smarter way<br>
+                A smarter way
+                <br>
                 to experience dining.
             </h1>
 
-            <p>
-                From the moment you enter the restaurant
-                to the moment your dining experience ends,
-                everything works together.
+            <p class="hero-description">
+                From choosing your table to placing your order
+                and tracking it in real time, IDDS connects
+                every part of your dining experience.
             </p>
 
-            <a href="#" class="btn btn-primary">
-                Discover the Experience
+            <div class="hero-actions">
+
+                <a
+                    href="{% url 'table_selection' %}"
+                    class="btn btn-primary"
+                >
+                    Start Dining
+                </a>
+
+                <a
+                    href="{% url 'table_selection' %}"
+                    class="text-link"
+                >
+                    Explore the experience →
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     EXPERIENCE INTRO
+     ========================= -->
+<section class="experience-section">
+
+    <div class="container">
+
+        <div class="section-heading reveal">
+
+            <p class="eyebrow">
+                THE DINING EXPERIENCE
+            </p>
+
+            <h2>
+                Everything connected.
+                <br>
+                Everything simpler.
+            </h2>
+
+            <p>
+                IDDS brings the restaurant experience together
+                in one seamless digital journey.
+            </p>
+
+        </div>
+
+
+        <div class="feature-grid">
+
+            <!-- Feature 1 -->
+            <article class="feature-card reveal">
+
+                <span class="feature-number">
+                    01
+                </span>
+
+                <h3>
+                    Choose your table
+                </h3>
+
+                <p>
+                    Select an available table and begin
+                    your dining session without unnecessary
+                    waiting.
+                </p>
+
+            </article>
+
+
+            <!-- Feature 2 -->
+            <article class="feature-card reveal">
+
+                <span class="feature-number">
+                    02
+                </span>
+
+                <h3>
+                    Explore the menu
+                </h3>
+
+                <p>
+                    Browse dishes, discover chef specials
+                    and build your order directly from
+                    your table.
+                </p>
+
+            </article>
+
+
+            <!-- Feature 3 -->
+            <article class="feature-card reveal">
+
+                <span class="feature-number">
+                    03
+                </span>
+
+                <h3>
+                    Order effortlessly
+                </h3>
+
+                <p>
+                    Add your favourites to the cart,
+                    review your order and send it directly
+                    to the kitchen.
+                </p>
+
+            </article>
+
+
+            <!-- Feature 4 -->
+            <article class="feature-card reveal">
+
+                <span class="feature-number">
+                    04
+                </span>
+
+                <h3>
+                    Track your order
+                </h3>
+
+                <p>
+                    Follow your order as it moves through
+                    the restaurant and know when it is ready.
+                </p>
+
+            </article>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     CUSTOMER JOURNEY
+     ========================= -->
+<section class="journey-section">
+
+    <div class="container">
+
+        <div class="journey-content reveal">
+
+            <p class="eyebrow">
+                ONE CONNECTED JOURNEY
+            </p>
+
+            <h2>
+                From table
+                <br>
+                to kitchen
+                <br>
+                to your plate.
+            </h2>
+
+            <p>
+                Your table, order, kitchen and billing
+                experience work together through one
+                integrated system.
+            </p>
+
+            <a
+                href="{% url 'table_selection' %}"
+                class="btn btn-secondary"
+            >
+                Begin Your Experience
             </a>
 
         </div>
 
     </div>
+
+</section>
+
+
+<!-- =========================
+     CALL TO ACTION
+     ========================= -->
+<section class="cta-section">
+
+    <div class="container">
+
+        <div class="cta-card reveal">
+
+            <p class="eyebrow">
+                READY WHEN YOU ARE
+            </p>
+
+            <h2>
+                Your table is waiting.
+            </h2>
+
+            <p>
+                Start your dining experience with IDDS.
+            </p>
+
+            <a
+                href="{% url 'table_selection' %}"
+                class="btn btn-primary"
+            >
+                Choose a Table
+            </a>
+
+        </div>
+
+    </div>
+
 </section>
 
 {% endblock %}

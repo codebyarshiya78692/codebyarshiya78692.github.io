@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}
+IDDS | Track Order #{{ order.id }}
+{% endblock %}
+
+
+{% block content %}
+
+<section class="section page-section">
+
+    <div class="container narrow-container">
+
+
+        <!-- HEADER -->
+
+        <div class="page-heading reveal">
+
+            <p class="eyebrow">
+                ORDER #{{ order.id }}
+            </p>
+
+            <h1>
+                Track your order.
+            </h1>
+
+            <p>
+                Table {{ order.session.table.table_number }}
+                · Stay updated while our kitchen prepares your meal.
+            </p>
+
+        </div>
+
+
+        <!-- TRACKING CARD -->
+
+        <div class="confirmation-card reveal">
+
+
+            <!-- CURRENT STATUS -->
+
+            <div class="current-status">
+
+                <p class="card-label">
+                    CURRENT STATUS
+                </p>
+
+                <h2>
+                    {{ order.get_status_display }}
+                </h2>
+
+                <p class="muted">
+                    Your order is being handled
+                    by our restaurant team.
+                </p>
+
+            </div>
+
+
+            <!-- TIMELINE -->
+
+            <div class="status-timeline">
+
+                {% for status_code, status_label in status_steps %}
+
+                    <div
+                        class="
+                            timeline-step
+                            {% if forloop.counter0 <= current_index %}
+                                completed
+                            {% endif %}
+                            {% if order.status == status_code %}
+                                current
+                            {% endif %}
+                        "
+                    >
+
+                        <div class="timeline-dot">
+
+                            {% if forloop.counter0 < current_index %}
+
+                                ✓
+
+                            {% elif order.status == status_code %}
+
+                                ●
+
+                            {% else %}
+
+                                {{ forloop.counter }}
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div>
+
+                            <strong>
+                                {{ status_label }}
+                            </strong>
+
+
+                            {% if order.status == status_code %}
+
+                                <p class="muted">
+                                    Current stage
+                                </p>
+
+                            {% elif forloop.counter0 < current_index %}
+
+                                <p class="muted">
+                                    Completed
+                                </p>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+
+            <!-- ITEMS -->
+
+            <div class="tracking-items">
+
+                <p class="eyebrow">
+                    ORDER ITEMS
+                </p>
+
+
+                {% for item in order.items.all %}
+
+                    <div class="summary-row">
+
+                        <span>
+                            {{ item.item_name }}
+                            × {{ item.quantity }}
+                        </span>
+
+                        <strong>
+                            ₹{{ item.total_price }}
+                        </strong>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+
+            <!-- TOTAL -->
+
+            <div class="confirmation-total">
+
+                <span>
+                    Total
+                </span>
+
+                <strong>
+                    ₹{{ order.total_amount }}
+                </strong>
+
+            </div>
+
+
+            <!-- ACTIONS -->
+
+            <div class="tracking-actions">
+
+                <a
+                    href="{% url 'menu' order.session.table.id %}"
+                    class="btn btn-primary"
+                >
+                    Order More
+                    <span>→</span>
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

@@ -1,125 +1,373 @@
 {% extends "base.html" %}
 
-{% block title %}Menu | IDDS{% endblock %}
+{% block title %}
+IDDS | Digital Menu
+{% endblock %}
 
 {% block content %}
 
-<section class="menu-page">
+<header class="customer-header">
 
-    <div class="page-container">
+    <div class="container customer-header-inner">
 
-        <div class="menu-heading">
-            <div>
-                <p class="eyebrow">OUR MENU</p>
+        <a
+            href="{% url 'home' %}"
+            class="brand"
+        >
+            IDDS
+        </a>
 
-                <h1>Made for your table.</h1>
+        <div class="header-info">
 
-                <p>
-                    Explore our dishes and add your favourites to your order.
-                </p>
-            </div>
+            <span>
+                Table {{ table.table_number }}
+            </span>
 
-            <a href="{% url 'orders:cart' %}" class="btn btn-primary">
-                🛒 View Cart
+            <a
+                href="{% url 'cart' %}"
+                class="cart-link"
+            >
+                Cart
+                <span
+                    id="cart-count"
+                    class="cart-count"
+                >
+                    {{ cart_count }}
+                </span>
             </a>
-        </div>
-
-
-        <!-- CATEGORY FILTERS -->
-
-        <div class="category-filters">
-
-            <a href="{% url 'restaurant:menu' %}"
-               class="{% if not selected_category %}active{% endif %}">
-                All
-            </a>
-
-            {% for category in categories %}
-
-                <a href="{% url 'restaurant:menu' %}?category={{ category.id }}"
-                   class="{% if selected_category|stringformat:'s' == category.id|stringformat:'s' %}active{% endif %}">
-                    {{ category.name }}
-                </a>
-
-            {% endfor %}
 
         </div>
 
+    </div>
 
-        <!-- MENU ITEMS -->
+</header>
 
-        {% if items %}
 
-            <div class="menu-grid">
+<section class="section page-section">
 
-                {% for item in items %}
+    <div class="container">
 
-                    <article class="menu-card">
+        <div class="page-heading reveal">
 
-                        <div class="menu-card-image">
-                            🍽️
-                        </div>
+            <p class="eyebrow">
+                TABLE {{ table.table_number }}
+            </p>
 
-                        <div class="menu-card-body">
+            <h1>
+                Digital Menu
+            </h1>
 
-                            <span class="menu-category">
-                                {{ item.category.name }}
-                            </span>
+            <p>
+                Explore our menu and add your favourites
+                to your order.
+            </p>
 
-                            <h2>{{ item.name }}</h2>
+        </div>
 
-                            {% if item.description %}
-                                <p>{{ item.description }}</p>
-                            {% else %}
-                                <p>
-                                    A delicious selection prepared fresh for you.
-                                </p>
-                            {% endif %}
 
-                            <div class="menu-card-bottom">
+        <div id="menu-message"></div>
 
-                                <strong class="menu-price">
-                                    ₹{{ item.price }}
-                                </strong>
 
-                                <form method="post"
-                                      action="{% url 'orders:add_to_cart' item.id %}">
-                                    {% csrf_token %}
+        {% for category in categories %}
 
-                                    <button type="submit"
-                                            class="btn btn-primary">
-                                        Add to Cart
-                                    </button>
-                                </form>
+            <section class="menu-category">
 
-                            </div>
+                <div class="category-heading reveal">
 
-                        </div>
+                    <div>
 
-                    </article>
+                        <p class="eyebrow">
+                            MENU
+                        </p>
 
-                {% endfor %}
+                        <h2>
+                            {{ category.name }}
+                        </h2>
 
-            </div>
+                    </div>
 
-        {% else %}
+                    {% if category.description %}
 
-            <div class="empty-menu">
+                        <p class="category-description">
+                            {{ category.description }}
+                        </p>
 
-                <div>🍽️</div>
+                    {% endif %}
 
-                <h2>No dishes available</h2>
+                </div>
+
+
+                <div class="menu-grid">
+
+                    {% for item in category.items.all %}
+
+                        {% if item.is_available %}
+
+                            <article
+                                class="menu-card reveal"
+                            >
+
+                                {% if item.image_url %}
+
+                                    <div
+                                        class="menu-card-image"
+                                        style="
+                                            overflow: hidden;
+                                            aspect-ratio: 4 / 3;
+                                            background: #eee;
+                                        "
+                                    >
+
+                                        <img
+                                            src="{{ item.image_url }}"
+                                            alt="{{ item.name }}"
+                                            loading="lazy"
+                                            style="
+                                                width: 100%;
+                                                height: 100%;
+                                                object-fit: cover;
+                                                display: block;
+                                                transition:
+                                                    transform 0.5s
+                                                    ease;
+                                            "
+                                            onmouseover="
+                                                this.style.transform =
+                                                'scale(1.06)';
+                                            "
+                                            onmouseout="
+                                                this.style.transform =
+                                                'scale(1)';
+                                            "
+                                        >
+
+                                    </div>
+
+                                {% endif %}
+
+
+                                <div class="menu-card-top">
+
+                                    <span
+                                        class="menu-category-tag"
+                                    >
+                                        {{ category.name }}
+                                    </span>
+
+                                </div>
+
+
+                                <div class="menu-card-content">
+
+                                    <h3>
+                                        {{ item.name }}
+                                    </h3>
+
+                                    {% if item.description %}
+
+                                        <p>
+                                            {{ item.description }}
+                                        </p>
+
+                                    {% endif %}
+
+                                    <div class="menu-card-bottom">
+
+                                        <strong class="price">
+                                            ₹{{ item.price }}
+                                        </strong>
+
+                                        <button
+                                            type="button"
+                                            class="btn btn-primary add-to-cart"
+                                            data-item-id="{{ item.id }}"
+                                        >
+                                            Add to Cart
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </article>
+
+                        {% endif %}
+
+                    {% empty %}
+
+                        <p class="muted">
+                            No items available in this category.
+                        </p>
+
+                    {% endfor %}
+
+                </div>
+
+            </section>
+
+        {% empty %}
+
+            <div class="empty-state">
+
+                <h2>
+                    Menu coming soon
+                </h2>
 
                 <p>
-                    There are currently no available menu items.
+                    Menu items have not been added yet.
                 </p>
 
             </div>
 
-        {% endif %}
+        {% endfor %}
 
     </div>
 
 </section>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const buttons = document.querySelectorAll(
+        ".add-to-cart"
+    );
+
+    const cartCount = document.getElementById(
+        "cart-count"
+    );
+
+    const messageBox = document.getElementById(
+        "menu-message"
+    );
+
+
+    function getCookie(name) {
+
+        let cookieValue = null;
+
+        if (
+            document.cookie &&
+            document.cookie !== ""
+        ) {
+
+            const cookies =
+                document.cookie.split(";");
+
+            for (let cookie of cookies) {
+
+                cookie = cookie.trim();
+
+                if (
+                    cookie.substring(
+                        0,
+                        name.length + 1
+                    ) === name + "="
+                ) {
+
+                    cookieValue =
+                        decodeURIComponent(
+                            cookie.substring(
+                                name.length + 1
+                            )
+                        );
+
+                    break;
+                }
+            }
+        }
+
+        return cookieValue;
+    }
+
+
+    buttons.forEach((button) => {
+
+        button.addEventListener(
+            "click",
+            async () => {
+
+                const itemId =
+                    button.dataset.itemId;
+
+                button.disabled = true;
+
+                try {
+
+                    const response =
+                        await fetch(
+                            `/cart/add/${itemId}/`,
+                            {
+                                method: "POST",
+
+                                headers: {
+                                    "X-CSRFToken":
+                                        getCookie(
+                                            "csrftoken"
+                                        ),
+
+                                    "X-Requested-With":
+                                        "XMLHttpRequest",
+                                },
+
+                            }
+                        );
+
+
+                    const data =
+                        await response.json();
+
+
+                    if (data.success) {
+
+                        cartCount.textContent =
+                            data.cart_count;
+
+                        messageBox.innerHTML = `
+                            <div class="success-message">
+                                ${data.message}
+                            </div>
+                        `;
+
+                        setTimeout(() => {
+                            messageBox.innerHTML = "";
+                        }, 2500);
+
+                    } else {
+
+                        messageBox.innerHTML = `
+                            <div class="error-message">
+                                ${data.message}
+                            </div>
+                        `;
+                    }
+
+                } catch (error) {
+
+                    messageBox.innerHTML = `
+                        <div class="error-message">
+                            Something went wrong.
+                            Please try again.
+                        </div>
+                    `;
+
+                } finally {
+
+                    button.disabled = false;
+                }
+
+            }
+        );
+
+    });
+
+});
+
+</script>
 
 {% endblock %}

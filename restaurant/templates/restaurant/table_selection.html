@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}IDDS | Select Your Table{% endblock %}
+
+
+{% block content %}
+
+<section class="section page-section table-page">
+
+    <div class="container">
+
+        <!-- PAGE INTRO -->
+
+        <div class="page-heading reveal">
+
+            <p class="eyebrow">
+                YOUR DINING EXPERIENCE
+            </p>
+
+            <h1>
+                Select your table
+            </h1>
+
+            <p>
+                Choose an available table to begin
+                your digital dining session.
+            </p>
+
+        </div>
+
+
+        <!-- MESSAGES -->
+
+        {% if messages %}
+
+            <div class="messages">
+
+                {% for message in messages %}
+
+                    <div class="message {{ message.tags }}">
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+
+        <!-- TABLE GRID -->
+
+        <div class="table-grid">
+
+            {% for table in tables %}
+
+                <article class="table-card reveal">
+
+                    <div class="table-card-top">
+
+                        <div class="table-number">
+                            {{ table.table_number }}
+                        </div>
+
+                        <span class="table-capacity">
+                            {{ table.capacity }} seats
+                        </span>
+
+                    </div>
+
+
+                    <div class="table-card-copy">
+
+                        <p class="card-label">
+                            DINING TABLE
+                        </p>
+
+                        <h2>
+                            Table {{ table.table_number }}
+                        </h2>
+
+                        <p class="muted">
+                            A comfortable place to enjoy your meal.
+                        </p>
+
+                    </div>
+
+
+                    <div class="table-status">
+
+                        {% if table.status == "available" or table.status == "completed" %}
+
+                            <span class="status available">
+
+                                <span></span>
+
+                                Available
+
+                            </span>
+
+
+                            <a
+                                href="{% url 'start_dining' table.id %}"
+                                class="btn btn-primary"
+                            >
+                                Select Table
+
+                                <span aria-hidden="true">
+                                    →
+                                </span>
+
+                            </a>
+
+                        {% else %}
+
+                            <span class="status unavailable">
+                                {{ table.get_status_display }}
+                            </span>
+
+
+                            <button
+                                class="btn btn-disabled"
+                                disabled
+                            >
+                                Unavailable
+                            </button>
+
+                        {% endif %}
+
+                    </div>
+
+                </article>
+
+
+            {% empty %}
+
+                <!-- EMPTY STATE -->
+
+                <div class="empty-state table-empty reveal is-visible">
+
+                    <div class="empty-state-icon">
+                        ◌
+                    </div>
+
+                    <p class="eyebrow">
+                        DINING FLOOR
+                    </p>
+
+                    <h2>
+                        No tables available
+                    </h2>
+
+                    <p>
+                        Please check again shortly.
+                    </p>
+
+                    <a
+                        href="{% url 'table_selection' %}"
+                        class="btn btn-secondary"
+                    >
+                        Refresh tables
+                    </a>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

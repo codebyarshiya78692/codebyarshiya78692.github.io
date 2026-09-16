@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+
+{% block title %}
+Reports | IDDS
+{% endblock %}
+
+{% block content %}
+
+<section class="page-shell">
+
+    <div class="page-heading">
+
+        <div>
+            <span class="eyebrow">BUSINESS INTELLIGENCE</span>
+
+            <h1>Restaurant Reports</h1>
+
+            <p>
+                Monitor sales, orders, menu performance,
+                tables and operational activity.
+            </p>
+        </div>
+
+        <div class="report-filters">
+
+            <a
+                href="?period=today"
+                class="filter-link {% if period == 'today' %}active{% endif %}"
+            >
+                Today
+            </a>
+
+            <a
+                href="?period=7days"
+                class="filter-link {% if period == '7days' %}active{% endif %}"
+            >
+                7 Days
+            </a>
+
+            <a
+                href="?period=30days"
+                class="filter-link {% if period == '30days' %}active{% endif %}"
+            >
+                30 Days
+            </a>
+
+            <a
+                href="?period=all"
+                class="filter-link {% if period == 'all' %}active{% endif %}"
+            >
+                All Time
+            </a>
+
+        </div>
+
+    </div>
+
+
+    {% if access_denied %}
+
+        <div class="report-card">
+            <h2>Staff access required</h2>
+            <p>
+                Reports are available to authorized restaurant staff.
+            </p>
+        </div>
+
+    {% else %}
+
+
+    <!-- =====================================================
+         KPI CARDS
+    ====================================================== -->
+
+    <div class="report-grid">
+
+        <article class="report-stat">
+            <span>Total Revenue</span>
+            <strong>₹{{ total_revenue|floatformat:2 }}</strong>
+            <small>{{ period_label }}</small>
+        </article>
+
+        <article class="report-stat">
+            <span>Total Orders</span>
+            <strong>{{ total_orders }}</strong>
+            <small>{{ period_label }}</small>
+        </article>
+
+        <article class="report-stat">
+            <span>Completed Orders</span>
+            <strong>{{ completed_orders }}</strong>
+            <small>Successfully completed</small>
+        </article>
+
+        <article class="report-stat">
+            <span>Active Orders</span>
+            <strong>{{ active_orders }}</strong>
+            <small>Currently in service</small>
+        </article>
+
+        <article class="report-stat">
+            <span>Average Order</span>
+            <strong>₹{{ average_order_value|floatformat:2 }}</strong>
+            <small>Average ticket value</small>
+        </article>
+
+        <article class="report-stat">
+            <span>Cancelled</span>
+            <strong>{{ cancelled_count }}</strong>
+            <small>Cancelled orders</small>
+        </article>
+
+    </div>
+
+
+    <!-- =====================================================
+         TOP MENU ITEMS
+    ====================================================== -->
+
+    <div class="report-section">
+
+        <div class="section-heading">
+            <div>
+                <span class="eyebrow">MENU PERFORMANCE</span>
+                <h2>Top Selling Items</h2>
+            </div>
+        </div>
+
+        <div class="report-table-wrapper">
+
+            <table class="report-table">
+
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantity Sold</th>
+                        <th>Revenue</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for item in top_items %}
+
+                    <tr>
+                        <td>
+                            <strong>{{ item.item_name }}</strong>
+                        </td>
+
+                        <td>
+                            {{ item.quantity_sold }}
+                        </td>
+
+                        <td>
+                            ₹{{ item.revenue|floatformat:2 }}
+                        </td>
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="3">
+                            No sales data available for this period.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         ORDER STATUS
+    ====================================================== -->
+
+    <div class="report-section">
+
+        <div class="section-heading">
+            <div>
+                <span class="eyebrow">OPERATIONS</span>
+                <h2>Order Status</h2>
+            </div>
+        </div>
+
+        <div class="status-grid">
+
+            {% for status in status_breakdown %}
+
+            <div class="status-card">
+
+                <span>
+                    {{ status.status|title }}
+                </span>
+
+                <strong>
+                    {{ status.count }}
+                </strong>
+
+            </div>
+
+            {% empty %}
+
+            <div class="report-card">
+                No order activity found.
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         TABLE ACTIVITY
+    ====================================================== -->
+
+    <div class="report-section">
+
+        <div class="section-heading">
+            <div>
+                <span class="eyebrow">TABLE ACTIVITY</span>
+                <h2>Most Active Tables</h2>
+            </div>
+        </div>
+
+        <div class="report-table-wrapper">
+
+            <table class="report-table">
+
+                <thead>
+                    <tr>
+                        <th>Table</th>
+                        <th>Sessions</th>
+                        <th>Orders</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for table in table_usage %}
+
+                    <tr>
+                        <td>
+                            Table {{ table.table__table_number }}
+                        </td>
+
+                        <td>
+                            {{ table.session_count }}
+                        </td>
+
+                        <td>
+                            {{ table.order_count }}
+                        </td>
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="3">
+                            No table activity available.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         RESTAURANT SNAPSHOT
+    ====================================================== -->
+
+    <div class="report-section">
+
+        <div class="section-heading">
+            <div>
+                <span class="eyebrow">RESTAURANT SNAPSHOT</span>
+                <h2>Current Operations</h2>
+            </div>
+        </div>
+
+        <div class="report-grid">
+
+            <article class="report-stat">
+                <span>Total Tables</span>
+                <strong>{{ total_tables }}</strong>
+                <small>{{ available_tables }} available</small>
+            </article>
+
+            <article class="report-stat">
+                <span>Tables In Use</span>
+                <strong>{{ occupied_tables }}</strong>
+                <small>Currently occupied / processing</small>
+            </article>
+
+            <article class="report-stat">
+                <span>Menu Items</span>
+                <strong>{{ total_menu_items }}</strong>
+                <small>{{ available_menu_items }} available</small>
+            </article>
+
+            <article class="report-stat">
+                <span>Unavailable Items</span>
+                <strong>{{ unavailable_menu_items }}</strong>
+                <small>Currently hidden from ordering</small>
+            </article>
+
+            <article class="report-stat">
+                <span>Dining Sessions</span>
+                <strong>{{ total_sessions }}</strong>
+                <small>{{ period_label }}</small>
+            </article>
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}

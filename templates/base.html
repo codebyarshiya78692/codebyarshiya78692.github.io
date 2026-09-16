@@ -2,114 +2,205 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>{% block title %}IDDS{% endblock %}</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <link rel="stylesheet" href="{% static 'css/variables.css' %}">
-    <link rel="stylesheet" href="{% static 'css/base.css' %}">
-    <link rel="stylesheet" href="{% static 'css/components.css' %}">
-    <link rel="stylesheet" href="{% static 'css/animations.css' %}">
+    <meta
+        name="theme-color"
+        content="#6B4F3A"
+    >
+
+    <title>
+        {% block title %}
+            IDDS
+        {% endblock %}
+    </title>
+
+    <!-- Global Styles -->
+    <link
+        rel="stylesheet"
+        href="{% static 'css/variables.css' %}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/base.css' %}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/components.css' %}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/animations.css' %}"
+    >
+
+    {% block extra_css %}{% endblock %}
+
 </head>
+
 
 <body>
 
-<header class="site-header">
-    <div class="nav-container">
+    <!-- =========================
+         HEADER
+         ========================= -->
 
-        <a href="{% url 'home' %}" class="brand">
-            <span class="brand-mark">☕</span>
-            <span>
-                <strong>IDDS</strong>
-                <small>Integrated Digital Dining</small>
-            </span>
-        </a>
+    <header class="site-header">
 
-        <nav class="main-nav">
+        <div class="nav-container">
 
-            <a href="{% url 'home' %}">Home</a>
+            <a
+                href="{% url 'home' %}"
+                class="brand"
+                aria-label="IDDS home"
+            >
 
-            <a href="{% url 'restaurant:menu' %}">Menu</a>
+                <span class="brand-mark">
+                    ☕
+                </span>
 
-            <a href="{% url 'orders:cart' %}" class="cart-link">
-                Cart
-                {% if request.session.cart %}
-                    <span class="cart-badge">
-                        {{ request.session.cart|length }}
-                    </span>
-                {% endif %}
+                <span class="brand-copy">
+
+                    <strong>
+                        IDDS
+                    </strong>
+
+                    <small>
+                        Integrated Digital Dining
+                    </small>
+
+                </span>
+
             </a>
 
-            {% if user.is_authenticated %}
 
-                {% if user.is_staff %}
-                    <a href="/admin/">Admin</a>
-                {% else %}
-                    <a href="{% url 'accounts:dashboard' %}">Dashboard</a>
-                    <a href="{% url 'orders:my_orders' %}">My Orders</a>
-                {% endif %}
+            <nav
+                class="main-nav"
+                aria-label="Main navigation"
+            >
 
-                <form method="post"
-                      action="{% url 'accounts:logout' %}"
-                      class="logout-form">
-                    {% csrf_token %}
-                    <button type="submit" class="nav-logout">
-                        Logout
-                    </button>
-                </form>
-
-            {% else %}
-
-                <a href="{% url 'accounts:login' %}" class="nav-login">
-                    Login
+                <a href="{% url 'home' %}">
+                    Home
                 </a>
 
-            {% endif %}
 
-        </nav>
-
-    </div>
-</header>
+                <a href="{% url 'table_selection' %}">
+                    Menu
+                </a>
 
 
-<main>
-    {% if messages %}
-        <div class="global-messages">
-            {% for message in messages %}
-                <div class="message {{ message.tags }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
+                <a
+                    href="{% url 'cart' %}"
+                    class="cart-link"
+                >
 
-    {% block content %}
-    {% endblock %}
-</main>
+                    Cart
 
+                    {% if request.session.cart %}
 
-<footer class="site-footer">
-    <div class="footer-container">
+                        <span class="cart-badge">
+                            {{ request.session.cart|length }}
+                        </span>
 
-        <div>
-            <strong>IDDS</strong>
-            <p>Integrated Digital Dining System</p>
+                    {% endif %}
+
+                </a>
+
+            </nav>
+
         </div>
 
-        <div>
-            <p>Smart dining. Simple service.</p>
+    </header>
+
+
+    <!-- =========================
+         MAIN CONTENT
+         ========================= -->
+
+    <main>
+
+        {% if messages %}
+
+            <div class="global-messages">
+
+                {% for message in messages %}
+
+                    <div class="message {{ message.tags }}">
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+
+        {% block content %}
+        {% endblock %}
+
+    </main>
+
+
+    <!-- =========================
+         FOOTER
+         ========================= -->
+
+    <footer class="site-footer">
+
+        <div class="footer-container">
+
+            <div class="footer-brand">
+
+                <strong>
+                    IDDS
+                </strong>
+
+                <p>
+                    Integrated Digital Dining System
+                </p>
+
+            </div>
+
+
+            <div class="footer-info">
+
+                <p>
+                    Smart dining. Simple service.
+                </p>
+
+            </div>
+
         </div>
 
-    </div>
 
-    <div class="footer-bottom">
-        © 2026 IDDS. All rights reserved.
-    </div>
-</footer>
+        <div class="footer-bottom">
 
-<script src="{% static 'js/main.js' %}"></script>
+            © 2026 IDDS. All rights reserved.
+
+        </div>
+
+    </footer>
+
+
+    <!-- =========================
+         JAVASCRIPT
+         ========================= -->
+
+    <script src="{% static 'js/main.js' %}"></script>
+
+    {% block extra_js %}{% endblock %}
 
 </body>
+
 </html>
