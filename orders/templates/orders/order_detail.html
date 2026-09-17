@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+
+{% block title %}
+Order #{{ order.id }} | IDDS
+{% endblock %}
+
+{% block content %}
+
+<section class="page-header">
+
+    <div class="container reveal">
+
+        <p class="eyebrow">
+            ORDER TRACKING
+        </p>
+
+        <h1>
+            Order #{{ order.id }}
+        </h1>
+
+        <p>
+            Table {{ order.session.table.table_number }}
+            ·
+            {{ order.created_at|date:"d M Y, h:i A" }}
+        </p>
+
+    </div>
+
+</section>
+
+
+<section class="section section-tight">
+
+    <div class="container order-detail-grid">
+
+        <div class="dashboard-panel reveal">
+
+            <div class="panel-heading">
+
+                <div>
+
+                    <p class="eyebrow">
+                        CURRENT STATUS
+                    </p>
+
+                    <h2>
+                        {{ order.get_status_display }}
+                    </h2>
+
+                </div>
+
+                <span
+                    class="status status-large status-{{ order.status }}"
+                >
+                    {{ order.get_status_display }}
+                </span>
+
+            </div>
+
+
+            {% if order.status == "cancelled" %}
+
+                <div class="alert alert-error">
+                    This order has been cancelled.
+                </div>
+
+            {% else %}
+
+                <div class="status-timeline">
+
+                    {% for code,label in status_steps %}
+
+                        <div
+                            class="timeline-step
+                            {% if forloop.counter0 < current_index %}
+                                done
+                            {% elif forloop.counter0 == current_index %}
+                                current done
+                            {% endif %}"
+                        >
+
+                            <span class="timeline-dot"></span>
+
+                            <div>
+                                <strong>
+                                    {{ label }}
+                                </strong>
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+
+            {% if order.special_instructions %}
+
+                <div class="note-box">
+
+                    <strong>
+                        Kitchen note
+                    </strong>
+
+                    <p>
+                        {{ order.special_instructions }}
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+
+            {% if order.status == "completed" %}
+
+                <div class="feedback-callout">
+
+                    <p class="eyebrow">
+                        YOUR EXPERIENCE MATTERS
+                    </p>
+
+                    <h3>
+                        How was your dining experience?
+                    </h3>
+
+                    <p>
+                        Your feedback helps the restaurant improve
+                        its service and food quality.
+                    </p>
+
+
+                    {% if order.session.feedback %}
+
+                        <div class="feedback-complete">
+
+                            <strong>
+                                Feedback submitted
+                            </strong>
+
+                            <p>
+                                Thank you for sharing your experience.
+                            </p>
+
+                        </div>
+
+                    {% else %}
+
+                        <a
+                            href="{% url 'feedback:create' order.session.id %}"
+                            class="btn btn-primary"
+                        >
+                            Leave Feedback
+                        </a>
+
+                    {% endif %}
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <div class="checkout-card reveal">
+
+            <p class="eyebrow">
+                ORDER SUMMARY
+            </p>
+
+
+            <div class="summary-list">
+
+                {% for item in order.items.all %}
+
+                    <div class="summary-row">
+
+                        <span>
+                            {{ item.item_name }}
+                            ×
+                            {{ item.quantity }}
+                        </span>
+
+                        <strong>
+                            ₹{{ item.total_price }}
+                        </strong>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+
+            <div class="total-row">
+
+                <span>
+                    Total
+                </span>
+
+                <strong>
+                    ₹{{ order.total_amount }}
+                </strong>
+
+            </div>
+
+
+            <a
+                href="{% url 'my_orders' %}"
+                class="btn btn-secondary btn-full"
+            >
+                Back to My Orders
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<style>
+
+    .feedback-callout {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        background: var(--color-background);
+    }
+
+
+    .feedback-callout h3 {
+        margin: 0.3rem 0 0.5rem;
+        color: var(--color-dark);
+    }
+
+
+    .feedback-callout p {
+        color: var(--color-text-muted);
+    }
+
+
+    .feedback-callout .btn {
+        margin-top: 0.75rem;
+    }
+
+
+    .feedback-complete {
+        margin-top: 1rem;
+        padding: 1rem;
+        border-radius: var(--radius-md);
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+    }
+
+
+    .feedback-complete strong {
+        color: var(--color-dark);
+    }
+
+
+    .feedback-complete p {
+        margin-top: 0.3rem;
+        margin-bottom: 0;
+    }
+
+</style>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+{% if order.status != "completed" and order.status != "cancelled" %}
+
+<script>
+
+    setTimeout(
+        function () {
+            window.location.reload();
+        },
+        10000
+    );
+
+</script>
+
+{% endif %}
+
+{% endblock %}

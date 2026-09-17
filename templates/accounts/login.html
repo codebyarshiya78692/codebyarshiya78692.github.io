@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 
-{% block title %}Customer Login | IDDS{% endblock %}
+{% block title %}
+IDDS | Sign In
+{% endblock %}
 
 
 {% block content %}
@@ -9,9 +11,14 @@
 
     <div class="auth-shell">
 
-        <!-- LEFT VISUAL PANEL -->
+        <!-- =================================================
+             VISUAL PANEL
+             ================================================= -->
 
-        <div class="auth-visual" aria-hidden="true">
+        <div
+            class="auth-visual"
+            aria-hidden="true"
+        >
 
             <div class="auth-visual-overlay"></div>
 
@@ -22,13 +29,14 @@
                 </p>
 
                 <h2>
-                    Good food.<br>
-                    Less waiting.
+                    One system.
+                    <br>
+                    Every role.
                 </h2>
 
                 <p>
-                    Stay connected to your table,
-                    your order and your dining experience.
+                    Customers, waiters, chefs and administrators
+                    stay connected through one restaurant system.
                 </p>
 
             </div>
@@ -36,7 +44,9 @@
         </div>
 
 
-        <!-- LOGIN FORM -->
+        <!-- =================================================
+             LOGIN CARD
+             ================================================= -->
 
         <div class="auth-card">
 
@@ -45,7 +55,7 @@
             </div>
 
             <p class="eyebrow">
-                WELCOME BACK
+                IDDS ACCESS
             </p>
 
             <h1>
@@ -53,9 +63,13 @@
             </h1>
 
             <p class="auth-subtitle">
-                Sign in to continue your dining experience.
+                Sign in to continue to your IDDS experience.
             </p>
 
+
+            <!-- =================================================
+                 MESSAGES
+                 ================================================= -->
 
             {% if messages %}
 
@@ -74,7 +88,14 @@
             {% endif %}
 
 
-            <form method="post" class="auth-form">
+            <!-- =================================================
+                 LOGIN FORM
+                 ================================================= -->
+
+            <form
+                method="post"
+                class="auth-form"
+            >
 
                 {% csrf_token %}
 
@@ -120,6 +141,7 @@
                     type="submit"
                     class="btn btn-primary btn-full"
                 >
+
                     Sign In
 
                     <span aria-hidden="true">
@@ -131,14 +153,30 @@
             </form>
 
 
+            <!-- =================================================
+                 ROLE INFORMATION
+                 ================================================= -->
+
             <div class="auth-footer">
 
-                <span>
-                    New to IDDS?
+                <strong>
+                    IDDS accounts
+                </strong>
+
+                <span class="auth-note">
+                    Customers enter the digital dining experience.
                 </span>
 
                 <span class="auth-note">
-                    Please ask restaurant staff for your customer account.
+                    Waiters enter the service dashboard.
+                </span>
+
+                <span class="auth-note">
+                    Chefs enter the kitchen dashboard.
+                </span>
+
+                <span class="auth-note">
+                    Administrators enter the management system.
                 </span>
 
             </div>

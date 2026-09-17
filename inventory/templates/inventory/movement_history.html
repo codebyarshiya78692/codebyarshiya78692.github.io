@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ ingredient.name }} Stock History | IDDS
+{% endblock %}
+
+{% block content %}
+
+<section class="page-header">
+
+    <div class="container reveal">
+
+        <p class="eyebrow">
+            INVENTORY AUDIT
+        </p>
+
+        <h1>
+            {{ ingredient.name }}
+        </h1>
+
+        <p>
+            Complete stock movement history for this ingredient.
+        </p>
+
+    </div>
+
+</section>
+
+
+<section class="section section-tight">
+
+    <div class="container">
+
+        <div class="dashboard-grid">
+
+            <div class="dashboard-panel reveal">
+
+                <div class="panel-heading">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            CURRENT STOCK
+                        </p>
+
+                        <h2>
+                            {{ ingredient.current_stock }}
+                            {{ ingredient.unit }}
+                        </h2>
+
+                    </div>
+
+                    {% if ingredient.is_low_stock %}
+
+                        <span class="status status-cancelled">
+                            Low Stock
+                        </span>
+
+                    {% else %}
+
+                        <span class="status status-completed">
+                            Stock Healthy
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="summary-list">
+
+                    <div class="summary-row">
+
+                        <span>
+                            Minimum stock
+                        </span>
+
+                        <strong>
+                            {{ ingredient.minimum_stock }}
+                            {{ ingredient.unit }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-row">
+
+                        <span>
+                            Reorder level
+                        </span>
+
+                        <strong>
+                            {{ ingredient.reorder_level }}
+                            {{ ingredient.unit }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-row">
+
+                        <span>
+                            Cost per unit
+                        </span>
+
+                        <strong>
+                            ₹{{ ingredient.cost_per_unit|floatformat:2 }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="dashboard-panel reveal">
+
+                <div class="panel-heading">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            TRACEABILITY
+                        </p>
+
+                        <h2>
+                            {{ movements|length }} movement{{ movements|length|pluralize }}
+                        </h2>
+
+                    </div>
+
+                </div>
+
+                <p class="muted">
+                    Every purchase, usage, adjustment, waste and
+                    return is recorded against this ingredient.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="dashboard-panel reveal">
+
+            <div class="panel-heading">
+
+                <div>
+
+                    <p class="eyebrow">
+                        MOVEMENT HISTORY
+                    </p>
+
+                    <h2>
+                        Stock transactions
+                    </h2>
+
+                </div>
+
+                <a
+                    href="{% url 'inventory:dashboard' %}"
+                    class="btn btn-secondary"
+                >
+                    Back to Inventory
+                </a>
+
+            </div>
+
+
+            <div class="report-table-wrapper">
+
+                <table class="report-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Date
+                            </th>
+
+                            <th>
+                                Type
+                            </th>
+
+                            <th>
+                                Quantity
+                            </th>
+
+                            <th>
+                                Unit Cost
+                            </th>
+
+                            <th>
+                                Total Cost
+                            </th>
+
+                            <th>
+                                Reference
+                            </th>
+
+                            <th>
+                                Notes
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for movement in movements %}
+
+                            <tr>
+
+                                <td>
+                                    {{ movement.created_at|date:"d M Y, H:i" }}
+                                </td>
+
+                                <td>
+                                    {{ movement.get_movement_type_display }}
+                                </td>
+
+                                <td>
+                                    {{ movement.quantity }}
+                                    {{ ingredient.unit }}
+                                </td>
+
+                                <td>
+                                    ₹{{ movement.unit_cost|floatformat:2 }}
+                                </td>
+
+                                <td>
+                                    ₹{{ movement.total_cost|floatformat:2 }}
+                                </td>
+
+                                <td>
+                                    {{ movement.reference|default:"—" }}
+                                </td>
+
+                                <td>
+                                    {{ movement.notes|default:"—" }}
+                                </td>
+
+                            </tr>
+
+                        {% empty %}
+
+                            <tr>
+
+                                <td colspan="7">
+                                    No stock movements have been recorded
+                                    for this ingredient yet.
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

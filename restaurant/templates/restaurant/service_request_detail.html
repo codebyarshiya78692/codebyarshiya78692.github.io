@@ -1,0 +1,365 @@
+{% extends "base.html" %}
+
+{% block title %}
+Service Request Details | IDDS
+{% endblock %}
+
+{% block content %}
+
+<section class="detail-page">
+
+    <div class="detail-container">
+
+        <div class="detail-header">
+
+            <span class="eyebrow">
+                STAFF SERVICE REQUEST
+            </span>
+
+            <h1>
+                Table {{ service_request.session.table.table_number }}
+            </h1>
+
+            <p>
+                Review the customer's request and update its status.
+            </p>
+
+        </div>
+
+
+        <article class="detail-card">
+
+            <div class="detail-row">
+
+                <span>
+                    Request type
+                </span>
+
+                <strong>
+                    {{ service_request.get_request_type_display }}
+                </strong>
+
+            </div>
+
+
+            <div class="detail-row">
+
+                <span>
+                    Table
+                </span>
+
+                <strong>
+                    {{ service_request.session.table.table_number }}
+                </strong>
+
+            </div>
+
+
+            <div class="detail-row">
+
+                <span>
+                    Customer
+                </span>
+
+                <strong>
+                    {{ service_request.session.customer_name|default:"Guest" }}
+                </strong>
+
+            </div>
+
+
+            <div class="detail-row">
+
+                <span>
+                    Status
+                </span>
+
+                <strong>
+                    {{ service_request.get_status_display }}
+                </strong>
+
+            </div>
+
+
+            <div class="detail-row">
+
+                <span>
+                    Requested
+                </span>
+
+                <strong>
+                    {{ service_request.requested_at|date:"d M Y, h:i A" }}
+                </strong>
+
+            </div>
+
+
+            {% if service_request.completed_at %}
+
+                <div class="detail-row">
+
+                    <span>
+                        Completed
+                    </span>
+
+                    <strong>
+                        {{ service_request.completed_at|date:"d M Y, h:i A" }}
+                    </strong>
+
+                </div>
+
+            {% endif %}
+
+
+            <div class="detail-message">
+
+                <span>
+                    Customer message
+                </span>
+
+                {% if service_request.message %}
+
+                    <p>
+                        {{ service_request.message }}
+                    </p>
+
+                {% else %}
+
+                    <p>
+                        No additional message was provided.
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="detail-actions">
+
+                {% if service_request.status == "requested" %}
+
+                    <form
+                        method="post"
+                        action="{% url 'accept_service_request' service_request.id %}"
+                    >
+
+                        {% csrf_token %}
+
+                        <button
+                            type="submit"
+                            class="primary-button"
+                        >
+                            Accept Request
+                        </button>
+
+                    </form>
+
+                {% elif service_request.status == "accepted" %}
+
+                    <form
+                        method="post"
+                        action="{% url 'complete_service_request' service_request.id %}"
+                    >
+
+                        {% csrf_token %}
+
+                        <button
+                            type="submit"
+                            class="primary-button"
+                        >
+                            Mark Completed
+                        </button>
+
+                    </form>
+
+                {% else %}
+
+                    <span class="completed-label">
+                        Request completed
+                    </span>
+
+                {% endif %}
+
+
+                <a
+                    href="{% url 'staff_service_requests' %}"
+                    class="secondary-button"
+                >
+                    Back to Requests
+                </a>
+
+            </div>
+
+        </article>
+
+    </div>
+
+</section>
+
+
+<style>
+
+    .detail-page {
+        padding: 4rem 1.5rem 5rem;
+        background: var(--color-background);
+    }
+
+
+    .detail-container {
+        width: min(850px, 100%);
+        margin: 0 auto;
+    }
+
+
+    .detail-header {
+        margin-bottom: 2rem;
+    }
+
+
+    .detail-header h1 {
+        margin: 0.25rem 0 0.5rem;
+        color: var(--color-dark);
+    }
+
+
+    .detail-header p {
+        margin: 0;
+        color: var(--color-text-muted);
+    }
+
+
+    .detail-card {
+        padding: 2rem;
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        box-shadow: 0 18px 45px rgba(43, 33, 27, 0.06);
+    }
+
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 2rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+
+    .detail-row span,
+    .detail-message > span {
+        color: var(--color-text-muted);
+        font-size: 0.85rem;
+        font-weight: 700;
+    }
+
+
+    .detail-row strong {
+        color: var(--color-dark);
+        text-align: right;
+    }
+
+
+    .detail-message {
+        margin-top: 1.5rem;
+        padding: 1.25rem;
+        background: var(--color-background);
+        border-radius: var(--radius-md);
+    }
+
+
+    .detail-message p {
+        margin-top: 0.5rem;
+        color: var(--color-text);
+        line-height: 1.7;
+    }
+
+
+    .detail-actions {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+
+
+    .primary-button,
+    .secondary-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        padding: 0.7rem 1.2rem;
+        border-radius: 999px;
+        font: inherit;
+        font-weight: 700;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+
+    .primary-button {
+        border: 0;
+        background: var(--color-primary);
+        color: var(--color-text-light);
+    }
+
+
+    .secondary-button {
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        color: var(--color-primary);
+    }
+
+
+    .completed-label {
+        padding: 0.7rem 1rem;
+        border-radius: 999px;
+        background: rgba(107, 79, 58, 0.12);
+        color: var(--color-primary);
+        font-weight: 700;
+    }
+
+
+    @media (max-width: 600px) {
+
+        .detail-page {
+            padding: 3rem 1rem 4rem;
+        }
+
+
+        .detail-card {
+            padding: 1.25rem;
+        }
+
+
+        .detail-row {
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+
+        .detail-row strong {
+            text-align: left;
+        }
+
+
+        .detail-actions {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+
+        .detail-actions form,
+        .detail-actions button,
+        .detail-actions a {
+            width: 100%;
+        }
+
+    }
+
+</style>
+
+{% endblock %}

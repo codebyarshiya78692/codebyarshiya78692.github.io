@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}
+Your Bill | IDDS
+{% endblock %}
+
+
+{% block content %}
+
+<section class="section page-section">
+
+    <div class="container narrow-container">
+
+        <!-- HEADER -->
+
+        <div class="page-heading reveal">
+
+            <p class="eyebrow">
+                YOUR BILL
+            </p>
+
+            <h1>
+                Table {{ bill.session.table.table_number }}
+            </h1>
+
+            <p>
+                Here is your dining summary.
+            </p>
+
+        </div>
+
+
+        <!-- BILL -->
+
+        <div class="confirmation-card reveal">
+
+            <div class="current-status">
+
+                <p class="card-label">
+                    BILL STATUS
+                </p>
+
+                <h2>
+                    {{ bill.get_status_display }}
+                </h2>
+
+                {% if bill.status == "completed" %}
+
+                    <p class="muted">
+                        Thank you for dining with us.
+                    </p>
+
+                {% else %}
+
+                    <p class="muted">
+                        Your bill has been prepared.
+                        Please speak with our team to complete payment.
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- ITEMS -->
+
+            <div class="tracking-items">
+
+                <p class="eyebrow">
+                    YOUR ORDER
+                </p>
+
+
+                {% for item in bill.items.all %}
+
+                    <div class="summary-row">
+
+                        <span>
+                            {{ item.item_name }}
+                            × {{ item.quantity }}
+                        </span>
+
+                        <strong>
+                            ₹{{ item.total_price|floatformat:2 }}
+                        </strong>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+
+            <!-- TOTAL -->
+
+            <div class="bill-summary">
+
+                <div>
+
+                    <span>
+                        Subtotal
+                    </span>
+
+                    <strong>
+                        ₹{{ bill.subtotal|floatformat:2 }}
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Tax
+                    </span>
+
+                    <strong>
+                        ₹{{ bill.tax|floatformat:2 }}
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Service Charge
+                    </span>
+
+                    <strong>
+                        ₹{{ bill.service_charge|floatformat:2 }}
+                    </strong>
+
+                </div>
+
+
+                <div class="bill-total">
+
+                    <span>
+                        Total
+                    </span>
+
+                    <strong>
+                        ₹{{ bill.total_amount|floatformat:2 }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- ACTIONS -->
+
+            <div class="tracking-actions">
+
+                <a
+                    href="{% url 'service_requests' %}"
+                    class="btn btn-secondary"
+                >
+                    Request Assistance
+                </a>
+
+
+                <a
+                    href="{% url 'home' %}"
+                    class="btn btn-primary"
+                >
+                    Back to Restaurant
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

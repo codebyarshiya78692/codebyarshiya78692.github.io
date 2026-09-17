@@ -51,8 +51,6 @@ def start_dining(request, table_id):
         id=table_id
     )
 
-    # A customer can only start a new dining session
-    # on an available or completed table.
     if table.status not in ["available", "completed"]:
 
         messages.error(
@@ -62,7 +60,6 @@ def start_dining(request, table_id):
 
         return redirect("table_selection")
 
-    # Check whether this table already has an active session.
     active_session = (
         DiningSession.objects
         .filter(
@@ -74,29 +71,23 @@ def start_dining(request, table_id):
     )
 
     if active_session:
-
         session = active_session
 
     else:
-
         session = DiningSession.objects.create(
             table=table,
             status="active"
         )
 
-    # Mark the table as occupied.
     table.status = "occupied"
 
     table.save(
         update_fields=["status"]
     )
 
-    # Store the customer's dining session
-    # in the browser session.
     request.session["dining_session_id"] = session.id
     request.session["table_id"] = table.id
 
-    # Do not destroy an existing cart.
     if "cart" not in request.session:
         request.session["cart"] = {}
 
@@ -137,18 +128,24 @@ def menu(request, table_id):
             .first()
         )
 
-    # A customer must have an active dining session
-    # before accessing the menu.
     if session is None:
 
         return redirect(
             "table_selection"
         )
 
+    # Only load categories which actually contain
+    # at least one available menu item.
     categories = (
         MenuCategory.objects
-        .prefetch_related("items")
-        .all()
+        .filter(
+            items__is_available=True
+        )
+        .prefetch_related(
+            "items"
+        )
+        .distinct()
+        .order_by("name")
     )
 
     cart = request.session.get(
@@ -160,6 +157,12 @@ def menu(request, table_id):
         int(quantity)
         for quantity in cart.values()
     )
+
+    # Make sure Django creates the CSRF cookie
+    # when the menu page is opened.
+    from django.middleware.csrf import get_token
+
+    get_token(request)
 
     return render(
         request,
@@ -282,8 +285,6 @@ def cart(request):
         "table_id"
     )
 
-    # No active table/session means the customer
-    # must select a table first.
     if not session_id or not table_id:
 
         return redirect(
@@ -593,7 +594,6 @@ def place_order(request):
             "cart"
         )
 
-    # The table now has an active order.
     table = session.table
 
     table.status = "order_in_progress"
@@ -602,7 +602,6 @@ def place_order(request):
         update_fields=["status"]
     )
 
-    # Clear cart after successful order.
     request.session["cart"] = {}
 
     request.session["last_order_id"] = order.id

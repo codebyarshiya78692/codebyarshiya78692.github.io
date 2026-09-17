@@ -20,6 +20,12 @@ urlpatterns = [
     ),
 
     path(
+        "my-bill/",
+        views.customer_bill,
+        name="customer_bill",
+    ),
+
+    path(
         "<int:bill_id>/",
         views.bill_detail,
         name="bill_detail",

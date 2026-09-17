@@ -1,0 +1,678 @@
+{% extends "base.html" %}
+
+{% block title %}
+Service Requests
+{% endblock %}
+
+{% block content %}
+
+<section class="service-page">
+
+    <div class="service-container">
+
+        <!-- HEADER -->
+
+        <div class="service-heading">
+
+            <span class="eyebrow">
+                TABLE {{ table.table_number }}
+            </span>
+
+            <h1>
+                How can we help?
+            </h1>
+
+            <p>
+                Need something during your meal?
+                Send a request directly to our restaurant team.
+            </p>
+
+        </div>
+
+
+        <!-- REQUEST OPTIONS -->
+
+        <div class="service-grid">
+
+            <form
+                method="post"
+                action="{% url 'create_service_request' %}"
+                class="service-card"
+            >
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="request_type"
+                    value="water"
+                >
+
+                <div class="service-icon">
+                    💧
+                </div>
+
+                <h2>
+                    Water
+                </h2>
+
+                <p>
+                    Request fresh drinking water for your table.
+                </p>
+
+                <button
+                    type="submit"
+                    class="service-button"
+                >
+                    Request Water
+                </button>
+
+            </form>
+
+
+            <form
+                method="post"
+                action="{% url 'create_service_request' %}"
+                class="service-card"
+            >
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="request_type"
+                    value="cutlery"
+                >
+
+                <div class="service-icon">
+                    🍴
+                </div>
+
+                <h2>
+                    Cutlery
+                </h2>
+
+                <p>
+                    Need additional spoons, forks, knives or other
+                    tableware?
+                </p>
+
+                <button
+                    type="submit"
+                    class="service-button"
+                >
+                    Request Cutlery
+                </button>
+
+            </form>
+
+
+            <form
+                method="post"
+                action="{% url 'create_service_request' %}"
+                class="service-card"
+            >
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="request_type"
+                    value="assistance"
+                >
+
+                <div class="service-icon">
+                    🤝
+                </div>
+
+                <h2>
+                    Assistance
+                </h2>
+
+                <p>
+                    Ask a member of our team for assistance.
+                </p>
+
+                <button
+                    type="submit"
+                    class="service-button"
+                >
+                    Call Staff
+                </button>
+
+            </form>
+
+
+            <form
+                method="post"
+                action="{% url 'create_service_request' %}"
+                class="service-card"
+            >
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="request_type"
+                    value="bill"
+                >
+
+                <div class="service-icon">
+                    🧾
+                </div>
+
+                <h2>
+                    Bill
+                </h2>
+
+                <p>
+                    Let our team know when you are ready for your bill.
+                </p>
+
+                <button
+                    type="submit"
+                    class="service-button"
+                >
+                    Request Bill
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- OTHER REQUEST -->
+
+        <div class="custom-request">
+
+            <div class="custom-request-heading">
+
+                <span class="eyebrow">
+                    SOMETHING ELSE?
+                </span>
+
+                <h2>
+                    Send a custom request
+                </h2>
+
+                <p>
+                    Tell our team what you need and we'll take care
+                    of it.
+                </p>
+
+            </div>
+
+            <form
+                method="post"
+                action="{% url 'create_service_request' %}"
+            >
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="request_type"
+                    value="other"
+                >
+
+                <textarea
+                    name="message"
+                    rows="4"
+                    maxlength="255"
+                    placeholder="Tell us what you need..."
+                    required
+                ></textarea>
+
+                <button
+                    type="submit"
+                    class="service-button"
+                >
+                    Send Request
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- REQUEST HISTORY -->
+
+        <div class="request-history">
+
+            <div class="history-heading">
+
+                <span class="eyebrow">
+                    REQUEST HISTORY
+                </span>
+
+                <h2>
+                    Your requests
+                </h2>
+
+            </div>
+
+
+            {% if service_requests %}
+
+                <div class="request-list">
+
+                    {% for service_request in service_requests %}
+
+                        <article class="request-item">
+
+                            <div class="request-item-main">
+
+                                <span class="request-type">
+                                    {{ service_request.get_request_type_display }}
+                                </span>
+
+                                {% if service_request.message %}
+
+                                    <p>
+                                        {{ service_request.message }}
+                                    </p>
+
+                                {% endif %}
+
+                                <small>
+                                    {{ service_request.requested_at|date:"M d, Y · h:i A" }}
+                                </small>
+
+                            </div>
+
+
+                            <span
+                                class="request-status status-{{ service_request.status }}"
+                            >
+                                {{ service_request.get_status_display }}
+                            </span>
+
+                        </article>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-request">
+
+                    <div class="empty-icon">
+                        ☕
+                    </div>
+
+                    <h3>
+                        No requests yet
+                    </h3>
+
+                    <p>
+                        If you need anything during your meal,
+                        choose an option above.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- NAVIGATION -->
+
+        <div class="service-navigation">
+
+            <a
+                href="{% url 'menu' table.id %}"
+                class="secondary-button"
+            >
+                ← Back to Menu
+            </a>
+
+            <a
+                href="{% url 'cart' %}"
+                class="secondary-button"
+            >
+                View Cart
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<style>
+
+    .service-page {
+        min-height: 80vh;
+        padding: 4rem 6vw 6rem;
+        background: var(--color-background);
+    }
+
+
+    .service-container {
+        max-width: 1180px;
+        margin: 0 auto;
+    }
+
+
+    .service-heading {
+        max-width: 720px;
+        margin-bottom: 3rem;
+    }
+
+
+    .eyebrow {
+        display: inline-block;
+        margin-bottom: 0.8rem;
+        color: var(--color-secondary);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+    }
+
+
+    .service-heading h1 {
+        margin-bottom: 1rem;
+        color: var(--color-dark);
+        font-size: clamp(2.5rem, 6vw, 5rem);
+        line-height: 0.98;
+    }
+
+
+    .service-heading p {
+        max-width: 620px;
+        color: var(--color-text-muted);
+        line-height: 1.8;
+    }
+
+
+    .service-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.25rem;
+    }
+
+
+    .service-card {
+        padding: 2rem;
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        box-shadow: 0 18px 45px rgba(43, 33, 27, 0.06);
+        transition:
+            transform 0.25s ease,
+            box-shadow 0.25s ease,
+            border-color 0.25s ease;
+    }
+
+
+    .service-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--color-accent);
+        box-shadow: 0 24px 55px rgba(43, 33, 27, 0.1);
+    }
+
+
+    .service-icon {
+        width: 58px;
+        height: 58px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        background: rgba(166, 124, 82, 0.12);
+        border-radius: 50%;
+        font-size: 1.7rem;
+    }
+
+
+    .service-card h2 {
+        margin-bottom: 0.65rem;
+        color: var(--color-dark);
+    }
+
+
+    .service-card p {
+        min-height: 52px;
+        margin-bottom: 1.5rem;
+        color: var(--color-text-muted);
+        line-height: 1.65;
+    }
+
+
+    .service-button,
+    .secondary-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 46px;
+        padding: 0.75rem 1.25rem;
+        border: 0;
+        border-radius: 999px;
+        font: inherit;
+        font-weight: 700;
+        text-decoration: none;
+        cursor: pointer;
+        transition:
+            transform 0.2s ease,
+            background 0.2s ease,
+            opacity 0.2s ease;
+    }
+
+
+    .service-button {
+        background: var(--color-primary);
+        color: var(--color-text-light);
+    }
+
+
+    .service-button:hover {
+        background: var(--color-primary-hover);
+        transform: translateY(-2px);
+    }
+
+
+    .custom-request {
+        margin-top: 1.5rem;
+        padding: 2rem;
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        box-shadow: 0 18px 45px rgba(43, 33, 27, 0.05);
+    }
+
+
+    .custom-request-heading {
+        margin-bottom: 1.25rem;
+    }
+
+
+    .custom-request-heading h2 {
+        margin-bottom: 0.5rem;
+        color: var(--color-dark);
+    }
+
+
+    .custom-request-heading p {
+        color: var(--color-text-muted);
+    }
+
+
+    .custom-request textarea {
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        resize: vertical;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        background: var(--color-background);
+        color: var(--color-text);
+        font: inherit;
+        outline: none;
+    }
+
+
+    .custom-request textarea:focus {
+        border-color: var(--color-secondary);
+        box-shadow: 0 0 0 3px rgba(166, 124, 82, 0.12);
+    }
+
+
+    .request-history {
+        margin-top: 4rem;
+    }
+
+
+    .history-heading {
+        margin-bottom: 1.5rem;
+    }
+
+
+    .history-heading h2 {
+        color: var(--color-dark);
+    }
+
+
+    .request-list {
+        display: grid;
+        gap: 0.75rem;
+    }
+
+
+    .request-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1.25rem 1.5rem;
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+    }
+
+
+    .request-type {
+        display: block;
+        margin-bottom: 0.3rem;
+        color: var(--color-dark);
+        font-weight: 700;
+    }
+
+
+    .request-item-main p {
+        margin-bottom: 0.4rem;
+        color: var(--color-text-muted);
+    }
+
+
+    .request-item-main small {
+        color: var(--color-text-muted);
+    }
+
+
+    .request-status {
+        flex-shrink: 0;
+        padding: 0.45rem 0.75rem;
+        border-radius: 999px;
+        background: rgba(166, 124, 82, 0.12);
+        color: var(--color-primary);
+        font-size: 0.78rem;
+        font-weight: 700;
+    }
+
+
+    .status-completed {
+        background: rgba(107, 79, 58, 0.12);
+        color: var(--color-primary);
+    }
+
+
+    .status-accepted {
+        background: rgba(201, 166, 107, 0.18);
+        color: var(--color-primary);
+    }
+
+
+    .empty-request {
+        padding: 3rem 1.5rem;
+        text-align: center;
+        background: var(--color-surface);
+        border: 1px dashed var(--color-border);
+        border-radius: var(--radius-lg);
+    }
+
+
+    .empty-icon {
+        margin-bottom: 0.75rem;
+        font-size: 2.5rem;
+    }
+
+
+    .empty-request h3 {
+        margin-bottom: 0.4rem;
+        color: var(--color-dark);
+    }
+
+
+    .empty-request p {
+        color: var(--color-text-muted);
+    }
+
+
+    .service-navigation {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+
+    .secondary-button {
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        color: var(--color-primary);
+    }
+
+
+    .secondary-button:hover {
+        transform: translateY(-2px);
+        border-color: var(--color-secondary);
+    }
+
+
+    @media (max-width: 700px) {
+
+        .service-page {
+            padding: 3rem 1rem 4rem;
+        }
+
+
+        .service-grid {
+            grid-template-columns: 1fr;
+        }
+
+
+        .request-item {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+
+        .service-navigation {
+            flex-direction: column;
+        }
+
+
+        .secondary-button {
+            width: 100%;
+        }
+
+    }
+
+</style>
+
+{% endblock %}

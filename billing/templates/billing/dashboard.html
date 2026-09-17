@@ -4,179 +4,276 @@
 Billing | IDDS
 {% endblock %}
 
+
 {% block content %}
 
-<section class="page-shell">
+<section class="section page-section">
 
-    <div class="page-heading">
+    <div class="container">
 
-        <div>
-            <span class="eyebrow">FINANCE &amp; CHECKOUT</span>
+        <!-- HEADER -->
 
-            <h1>Billing</h1>
+        <div class="page-heading reveal">
+
+            <p class="eyebrow">
+                FINANCE &amp; CHECKOUT
+            </p>
+
+            <h1>
+                Billing
+            </h1>
 
             <p>
-                Manage active dining sessions and generated bills.
+                Manage active dining sessions, generate bills,
+                and complete payments.
             </p>
+
         </div>
 
-    </div>
 
+        <!-- ACTIVE SESSIONS -->
 
-    <div class="report-section">
+        <div class="confirmation-card reveal">
 
-        <div class="section-heading">
-            <div>
-                <span class="eyebrow">ACTIVE DINING</span>
-                <h2>Sessions Ready for Billing</h2>
+            <div class="section-heading">
+
+                <div>
+
+                    <p class="eyebrow">
+                        ACTIVE DINING
+                    </p>
+
+                    <h2>
+                        Sessions Ready for Billing
+                    </h2>
+
+                </div>
+
             </div>
+
+
+            {% if active_sessions %}
+
+                <div class="report-table-wrapper">
+
+                    <table class="report-table">
+
+                        <thead>
+
+                            <tr>
+                                <th>Table</th>
+                                <th>Customer</th>
+                                <th>Orders</th>
+                                <th>Session Total</th>
+                                <th>Action</th>
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for session in active_sessions %}
+
+                                <tr>
+
+                                    <td>
+
+                                        <strong>
+                                            Table {{ session.table.table_number }}
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+                                        {{ session.customer_name|default:"Guest" }}
+                                    </td>
+
+
+                                    <td>
+                                        {{ session.orders.all|length }}
+                                    </td>
+
+
+                                    <td>
+
+                                        <strong>
+                                            ₹{{ session.total_amount|floatformat:2 }}
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <a
+                                            href="{% url 'billing:generate_bill' session.id %}"
+                                            class="btn btn-primary"
+                                        >
+                                            Generate Bill
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-state">
+
+                    <p class="eyebrow">
+                        ALL CLEAR
+                    </p>
+
+                    <h3>
+                        No active sessions need billing.
+                    </h3>
+
+                    <p class="muted">
+                        New dining sessions will appear here
+                        once customers begin ordering.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
         </div>
 
 
-        <div class="report-table-wrapper">
+        <!-- BILL HISTORY -->
 
-            <table class="report-table">
+        <div class="confirmation-card reveal">
 
-                <thead>
-                    <tr>
-                        <th>Table</th>
-                        <th>Customer</th>
-                        <th>Orders</th>
-                        <th>Session Total</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
+            <div class="section-heading">
 
-                <tbody>
+                <div>
 
-                    {% for session in active_sessions %}
+                    <p class="eyebrow">
+                        BILL HISTORY
+                    </p>
 
-                    <tr>
+                    <h2>
+                        Generated Bills
+                    </h2>
 
-                        <td>
-                            <strong>
-                                Table {{ session.table.table_number }}
-                            </strong>
-                        </td>
+                </div>
 
-                        <td>
-                            {{ session.customer_name|default:"Guest" }}
-                        </td>
-
-                        <td>
-                            {{ session.orders.all|length }}
-                        </td>
-
-                        <td>
-                            ₹{{ session.total_amount|floatformat:2 }}
-                        </td>
-
-                        <td>
-
-                            <a
-                                href="{% url 'billing:generate_bill' session.id %}"
-                                class="button"
-                            >
-                                Generate Bill
-                            </a>
-
-                        </td>
-
-                    </tr>
-
-                    {% empty %}
-
-                    <tr>
-                        <td colspan="5">
-                            No active dining sessions found.
-                        </td>
-                    </tr>
-
-                    {% endfor %}
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
-
-    <div class="report-section">
-
-        <div class="section-heading">
-            <div>
-                <span class="eyebrow">BILL HISTORY</span>
-                <h2>Generated Bills</h2>
             </div>
-        </div>
 
 
-        <div class="report-table-wrapper">
+            {% if bills %}
 
-            <table class="report-table">
+                <div class="report-table-wrapper">
 
-                <thead>
-                    <tr>
-                        <th>Bill</th>
-                        <th>Table</th>
-                        <th>Status</th>
-                        <th>Total</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
+                    <table class="report-table">
 
-                <tbody>
+                        <thead>
 
-                    {% for bill in bills %}
+                            <tr>
+                                <th>Bill</th>
+                                <th>Table</th>
+                                <th>Customer</th>
+                                <th>Status</th>
+                                <th>Total</th>
+                                <th>Action</th>
+                            </tr>
 
-                    <tr>
+                        </thead>
 
-                        <td>
-                            <strong>
-                                #{{ bill.id }}
-                            </strong>
-                        </td>
 
-                        <td>
-                            Table {{ bill.session.table.table_number }}
-                        </td>
+                        <tbody>
 
-                        <td>
-                            {{ bill.get_status_display }}
-                        </td>
+                            {% for bill in bills %}
 
-                        <td>
-                            ₹{{ bill.total_amount|floatformat:2 }}
-                        </td>
+                                <tr>
 
-                        <td>
+                                    <td>
 
-                            <a
-                                href="{% url 'billing:bill_detail' bill.id %}"
-                                class="button"
-                            >
-                                View Bill
-                            </a>
+                                        <strong>
+                                            #{{ bill.id }}
+                                        </strong>
 
-                        </td>
+                                    </td>
 
-                    </tr>
 
-                    {% empty %}
+                                    <td>
+                                        Table {{ bill.session.table.table_number }}
+                                    </td>
 
-                    <tr>
-                        <td colspan="5">
-                            No bills generated yet.
-                        </td>
-                    </tr>
 
-                    {% endfor %}
+                                    <td>
+                                        {{ bill.session.customer_name|default:"Guest" }}
+                                    </td>
 
-                </tbody>
 
-            </table>
+                                    <td>
+
+                                        <span class="status-pill">
+                                            {{ bill.get_status_display }}
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <strong>
+                                            ₹{{ bill.total_amount|floatformat:2 }}
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <a
+                                            href="{% url 'billing:bill_detail' bill.id %}"
+                                            class="btn btn-secondary"
+                                        >
+                                            View Bill
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-state">
+
+                    <p class="eyebrow">
+                        NO BILL HISTORY
+                    </p>
+
+                    <h3>
+                        No bills have been generated yet.
+                    </h3>
+
+                    <p class="muted">
+                        Generated bills will appear here.
+                    </p>
+
+                </div>
+
+            {% endif %}
 
         </div>
 

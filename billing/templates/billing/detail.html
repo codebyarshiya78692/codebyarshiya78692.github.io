@@ -4,137 +4,202 @@
 Bill #{{ bill.id }} | IDDS
 {% endblock %}
 
+
 {% block content %}
 
-<section class="page-shell">
+<section class="section page-section">
 
-    <div class="page-heading">
+    <div class="container narrow-container">
 
-        <div>
-            <span class="eyebrow">FINAL BILL</span>
+        <!-- HEADER -->
 
-            <h1>Bill #{{ bill.id }}</h1>
+        <div class="page-heading reveal">
+
+            <p class="eyebrow">
+                FINAL BILL
+            </p>
+
+            <h1>
+                Bill #{{ bill.id }}
+            </h1>
 
             <p>
                 Table {{ bill.session.table.table_number }}
                 ·
                 {{ bill.session.customer_name|default:"Guest" }}
             </p>
+
         </div>
 
-        <div>
-            <span class="status-pill">
-                {{ bill.get_status_display }}
-            </span>
-        </div>
 
-    </div>
+        <!-- BILL CARD -->
+
+        <div class="confirmation-card reveal">
+
+            <!-- STATUS -->
+
+            <div class="current-status">
+
+                <p class="card-label">
+                    PAYMENT STATUS
+                </p>
+
+                <h2>
+                    {{ bill.get_status_display }}
+                </h2>
+
+                {% if bill.status == "completed" %}
+
+                    <p class="muted">
+                        Payment has been completed and the table
+                        has been returned to available status.
+                    </p>
+
+                {% else %}
+
+                    <p class="muted">
+                        Review the order items and complete payment
+                        when the customer is ready to leave.
+                    </p>
+
+                {% endif %}
+
+            </div>
 
 
-    <div class="report-section">
+            <!-- ITEMS -->
 
-        <div class="report-table-wrapper">
+            <div class="tracking-items">
 
-            <table class="report-table">
+                <p class="eyebrow">
+                    ORDER ITEMS
+                </p>
 
-                <thead>
 
-                    <tr>
-                        <th>Item</th>
-                        <th>Qty</th>
-                        <th>Unit Price</th>
-                        <th>Total</th>
-                    </tr>
+                {% for item in bill.items.all %}
 
-                </thead>
+                    <div class="summary-row">
 
-                <tbody>
+                        <span>
 
-                    {% for item in bill.items.all %}
+                            {{ item.item_name }}
 
-                    <tr>
+                            × {{ item.quantity }}
 
-                        <td>
-                            <strong>
-                                {{ item.item_name }}
-                            </strong>
-                        </td>
+                        </span>
 
-                        <td>
-                            {{ item.quantity }}
-                        </td>
 
-                        <td>
-                            ₹{{ item.unit_price|floatformat:2 }}
-                        </td>
-
-                        <td>
+                        <strong>
                             ₹{{ item.total_price|floatformat:2 }}
-                        </td>
+                        </strong>
 
-                    </tr>
+                    </div>
 
-                    {% endfor %}
+                {% empty %}
 
-                </tbody>
+                    <p class="muted">
+                        No items were found on this bill.
+                    </p>
 
-            </table>
+                {% endfor %}
+
+            </div>
+
+
+            <!-- SUMMARY -->
+
+            <div class="bill-summary">
+
+                <div>
+
+                    <span>
+                        Subtotal
+                    </span>
+
+                    <strong>
+                        ₹{{ bill.subtotal|floatformat:2 }}
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Tax
+                    </span>
+
+                    <strong>
+                        ₹{{ bill.tax|floatformat:2 }}
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Service Charge
+                    </span>
+
+                    <strong>
+                        ₹{{ bill.service_charge|floatformat:2 }}
+                    </strong>
+
+                </div>
+
+
+                <div class="bill-total">
+
+                    <span>
+                        Total
+                    </span>
+
+                    <strong>
+                        ₹{{ bill.total_amount|floatformat:2 }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- ACTIONS -->
+
+            <div class="tracking-actions">
+
+                <a
+                    href="{% url 'billing:dashboard' %}"
+                    class="btn btn-secondary"
+                >
+                    ← Back to Billing
+                </a>
+
+
+                {% if bill.status != "completed" %}
+
+                    <form
+                        method="post"
+                        action="{% url 'billing:complete_bill' bill.id %}"
+                        style="display: inline;"
+                    >
+
+                        {% csrf_token %}
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+                            Complete Payment &amp; Close Table
+                        </button>
+
+                    </form>
+
+                {% endif %}
+
+            </div>
 
         </div>
-
-
-        <div class="bill-summary">
-
-            <div>
-                <span>Subtotal</span>
-                <strong>
-                    ₹{{ bill.subtotal|floatformat:2 }}
-                </strong>
-            </div>
-
-            <div>
-                <span>Tax</span>
-                <strong>
-                    ₹{{ bill.tax|floatformat:2 }}
-                </strong>
-            </div>
-
-            <div>
-                <span>Service Charge</span>
-                <strong>
-                    ₹{{ bill.service_charge|floatformat:2 }}
-                </strong>
-            </div>
-
-            <div class="bill-total">
-                <span>Total</span>
-                <strong>
-                    ₹{{ bill.total_amount|floatformat:2 }}
-                </strong>
-            </div>
-
-        </div>
-
-
-        {% if bill.status != "completed" %}
-
-        <form
-            method="post"
-            action="{% url 'billing:complete_bill' bill.id %}"
-        >
-
-            {% csrf_token %}
-
-            <button
-                type="submit"
-                class="button button-primary"
-            >
-                Complete Payment &amp; Close Table
-            </button>
-
-        </form>
-
-        {% endif %}
 
     </div>
 

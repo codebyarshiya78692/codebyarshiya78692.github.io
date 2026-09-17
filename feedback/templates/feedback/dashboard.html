@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+
+{% block title %}
+Feedback Dashboard | IDDS
+{% endblock %}
+
+{% block content %}
+
+<section class="page-shell">
+
+    {% if access_denied %}
+
+        <div class="empty-state">
+
+            <span class="eyebrow">
+                ACCESS RESTRICTED
+            </span>
+
+            <h1>
+                Staff access required
+            </h1>
+
+            <p>
+                Feedback analytics are available to authorized staff.
+            </p>
+
+        </div>
+
+    {% else %}
+
+        <div class="page-heading">
+
+            <div>
+
+                <span class="eyebrow">
+                    CUSTOMER EXPERIENCE
+                </span>
+
+                <h1>
+                    Feedback
+                </h1>
+
+                <p>
+                    Review customer ratings, comments and recommendations.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="stats-grid">
+
+            <article class="stat-card">
+
+                <span class="eyebrow">
+                    RESPONSES
+                </span>
+
+                <strong>
+                    {{ total_feedback }}
+                </strong>
+
+                <p>
+                    Customer responses
+                </p>
+
+            </article>
+
+
+            <article class="stat-card">
+
+                <span class="eyebrow">
+                    AVERAGE RATING
+                </span>
+
+                <strong>
+                    {{ average_rating|floatformat:1 }}/5
+                </strong>
+
+                <p>
+                    Overall customer rating
+                </p>
+
+            </article>
+
+
+            <article class="stat-card">
+
+                <span class="eyebrow">
+                    RECOMMENDATIONS
+                </span>
+
+                <strong>
+                    {{ total_recommendations }}
+                </strong>
+
+                <p>
+                    Customers who would recommend us
+                </p>
+
+            </article>
+
+        </div>
+
+
+        <section class="report-section">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        RATINGS
+                    </span>
+
+                    <h2>
+                        Rating Breakdown
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="report-table-wrapper">
+
+                <table class="report-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Rating</th>
+                            <th>Responses</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for entry in rating_breakdown %}
+
+                            <tr>
+
+                                <td>
+                                    {{ entry.rating }}/5
+                                </td>
+
+                                <td>
+                                    {{ entry.count }}
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <section class="report-section">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        CUSTOMER VOICE
+                    </span>
+
+                    <h2>
+                        Recent Feedback
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="report-table-wrapper">
+
+                <table class="report-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Table</th>
+                            <th>Rating</th>
+                            <th>Recommendation</th>
+                            <th>Comment</th>
+                            <th>Date</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for entry in feedback %}
+
+                            <tr>
+
+                                <td>
+                                    Table
+                                    {{ entry.session.table.table_number }}
+                                </td>
+
+                                <td>
+                                    {{ entry.rating }}/5
+                                </td>
+
+                                <td>
+
+                                    {% if entry.would_recommend %}
+
+                                        Yes
+
+                                    {% else %}
+
+                                        No
+
+                                    {% endif %}
+
+                                </td>
+
+                                <td>
+                                    {{ entry.comment|default:"No comment provided." }}
+                                </td>
+
+                                <td>
+                                    {{ entry.created_at|date:"d M Y, H:i" }}
+                                </td>
+
+                            </tr>
+
+                        {% empty %}
+
+                            <tr>
+
+                                <td colspan="5">
+                                    No feedback has been submitted yet.
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}

@@ -143,7 +143,7 @@ IDDS | Track Order #{{ order.id }}
                         </span>
 
                         <strong>
-                            ₹{{ item.total_price }}
+                            ₹{{ item.total_price|floatformat:2 }}
                         </strong>
 
                     </div>
@@ -162,13 +162,13 @@ IDDS | Track Order #{{ order.id }}
                 </span>
 
                 <strong>
-                    ₹{{ order.total_amount }}
+                    ₹{{ order.total_amount|floatformat:2 }}
                 </strong>
 
             </div>
 
 
-            <!-- ACTIONS -->
+            <!-- CUSTOMER ACTIONS -->
 
             <div class="tracking-actions">
 
@@ -179,6 +179,46 @@ IDDS | Track Order #{{ order.id }}
                     Order More
                     <span>→</span>
                 </a>
+
+
+                <a
+                    href="{% url 'service_requests' %}"
+                    class="btn btn-secondary"
+                >
+                    Request Service
+                </a>
+
+
+                {% if order.session.bill %}
+
+                    <a
+                        href="{% url 'billing:customer_bill' %}"
+                        class="btn btn-secondary"
+                    >
+                        View Bill
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- HELP -->
+
+            <div class="empty-state">
+
+                <p class="eyebrow">
+                    NEED SOMETHING?
+                </p>
+
+                <h3>
+                    Our team is here to help.
+                </h3>
+
+                <p class="muted">
+                    Request water, cutlery, assistance, or your bill
+                    without leaving your table.
+                </p>
 
             </div>
 

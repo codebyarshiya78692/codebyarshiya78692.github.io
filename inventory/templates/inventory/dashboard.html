@@ -1,0 +1,507 @@
+{% extends "base.html" %}
+
+{% block title %}
+Inventory | IDDS
+{% endblock %}
+
+{% block content %}
+
+<section class="page-shell">
+
+    {% if access_denied %}
+
+        <div class="empty-state">
+
+            <span class="eyebrow">
+                ACCESS RESTRICTED
+            </span>
+
+            <h1>
+                Staff access required
+            </h1>
+
+            <p>
+                The inventory management area is available
+                only to authorized staff members.
+            </p>
+
+        </div>
+
+    {% else %}
+
+        <div class="page-heading">
+
+            <div>
+
+                <span class="eyebrow">
+                    STOCK CONTROL
+                </span>
+
+                <h1>
+                    Inventory
+                </h1>
+
+                <p>
+                    Monitor ingredients, stock levels and
+                    recent inventory movements.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================
+             SUMMARY
+             ================================================ -->
+
+        <div class="stats-grid">
+
+            <article class="stat-card">
+
+                <span class="eyebrow">
+                    INGREDIENTS
+                </span>
+
+                <strong>
+                    {{ total_ingredients }}
+                </strong>
+
+                <p>
+                    Active ingredients
+                </p>
+
+            </article>
+
+
+            <article class="stat-card">
+
+                <span class="eyebrow">
+                    LOW STOCK
+                </span>
+
+                <strong>
+                    {{ low_stock_count }}
+                </strong>
+
+                <p>
+                    Need attention
+                </p>
+
+            </article>
+
+
+            <article class="stat-card">
+
+                <span class="eyebrow">
+                    STOCK VALUE
+                </span>
+
+                <strong>
+                    ₹{{ total_stock_value|floatformat:2 }}
+                </strong>
+
+                <p>
+                    Estimated inventory value
+                </p>
+
+            </article>
+
+        </div>
+
+
+        <!-- ================================================
+             LOW STOCK
+             ================================================ -->
+
+        <section class="report-section">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        ATTENTION
+                    </span>
+
+                    <h2>
+                        Low Stock
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="report-table-wrapper">
+
+                <table class="report-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Ingredient</th>
+                            <th>Current</th>
+                            <th>Minimum</th>
+                            <th>Reorder Level</th>
+                            <th>Supplier</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for ingredient in low_stock %}
+
+                            <tr>
+
+                                <td>
+                                    <strong>
+                                        {{ ingredient.name }}
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    {{ ingredient.current_stock }}
+                                    {{ ingredient.unit }}
+                                </td>
+
+                                <td>
+                                    {{ ingredient.minimum_stock }}
+                                    {{ ingredient.unit }}
+                                </td>
+
+                                <td>
+                                    {{ ingredient.reorder_level }}
+                                    {{ ingredient.unit }}
+                                </td>
+
+                                <td>
+                                    {{ ingredient.supplier_name|default:"—" }}
+                                </td>
+
+                            </tr>
+
+                        {% empty %}
+
+                            <tr>
+
+                                <td colspan="5">
+                                    All active ingredients are above
+                                    their minimum stock level.
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================================================
+             INVENTORY TABLE
+             ================================================ -->
+
+        <section class="report-section">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        INGREDIENTS
+                    </span>
+
+                    <h2>
+                        Current Inventory
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="report-table-wrapper">
+
+                <table class="report-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Ingredient</th>
+                            <th>Current Stock</th>
+                            <th>Minimum</th>
+                            <th>Unit Cost</th>
+                            <th>Status</th>
+                            <th>Update</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for ingredient in ingredients %}
+
+                            <tr>
+
+                                <td>
+                                    <strong>
+                                        {{ ingredient.name }}
+                                    </strong>
+
+                                    <br>
+
+                                    <small>
+                                        {{ ingredient.supplier_name|default:"No supplier" }}
+                                    </small>
+                                </td>
+
+
+                                <td>
+                                    {{ ingredient.current_stock }}
+                                    {{ ingredient.unit }}
+                                </td>
+
+
+                                <td>
+                                    {{ ingredient.minimum_stock }}
+                                    {{ ingredient.unit }}
+                                </td>
+
+
+                                <td>
+                                    ₹{{ ingredient.cost_per_unit|floatformat:2 }}
+                                </td>
+
+
+                                <td>
+
+                                    {% if ingredient.is_low_stock %}
+
+                                        <strong>
+                                            LOW STOCK
+                                        </strong>
+
+                                    {% else %}
+
+                                        <span>
+                                            Healthy
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+
+                                    <form
+                                        method="post"
+                                        action="{% url 'inventory:add_stock' ingredient.id %}"
+                                    >
+
+                                        {% csrf_token %}
+
+                                        <input
+                                            type="number"
+                                            name="quantity"
+                                            min="0.001"
+                                            step="0.001"
+                                            placeholder="Qty"
+                                            required
+                                        >
+
+                                        <input
+                                            type="number"
+                                            name="unit_cost"
+                                            min="0"
+                                            step="0.01"
+                                            value="{{ ingredient.cost_per_unit }}"
+                                            placeholder="Cost"
+                                        >
+
+                                        <input
+                                            type="text"
+                                            name="reference"
+                                            placeholder="Reference"
+                                        >
+
+                                        <button
+                                            type="submit"
+                                            class="button"
+                                        >
+                                            Add Stock
+                                        </button>
+
+                                    </form>
+
+
+                                    <details>
+
+                                        <summary>
+                                            Adjust stock
+                                        </summary>
+
+                                        <form
+                                            method="post"
+                                            action="{% url 'inventory:adjust_stock' ingredient.id %}"
+                                        >
+
+                                            {% csrf_token %}
+
+                                            <input
+                                                type="number"
+                                                name="current_stock"
+                                                min="0"
+                                                step="0.001"
+                                                value="{{ ingredient.current_stock }}"
+                                                required
+                                            >
+
+                                            <input
+                                                type="text"
+                                                name="notes"
+                                                placeholder="Reason"
+                                            >
+
+                                            <button
+                                                type="submit"
+                                                class="button"
+                                            >
+                                                Save
+                                            </button>
+
+                                        </form>
+
+                                    </details>
+
+                                </td>
+
+                            </tr>
+
+                        {% empty %}
+
+                            <tr>
+
+                                <td colspan="6">
+                                    No active ingredients found.
+                                    Add ingredients through Django Admin.
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================================================
+             MOVEMENT HISTORY
+             ================================================ -->
+
+        <section class="report-section">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        HISTORY
+                    </span>
+
+                    <h2>
+                        Recent Stock Movements
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="report-table-wrapper">
+
+                <table class="report-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Ingredient</th>
+                            <th>Type</th>
+                            <th>Quantity</th>
+                            <th>Unit Cost</th>
+                            <th>Reference</th>
+                            <th>Date</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for movement in movements %}
+
+                            <tr>
+
+                                <td>
+                                    {{ movement.ingredient.name }}
+                                </td>
+
+                                <td>
+                                    {{ movement.get_movement_type_display }}
+                                </td>
+
+                                <td>
+                                    {{ movement.quantity }}
+                                    {{ movement.ingredient.unit }}
+                                </td>
+
+                                <td>
+                                    ₹{{ movement.unit_cost|floatformat:2 }}
+                                </td>
+
+                                <td>
+                                    {{ movement.reference|default:"—" }}
+                                </td>
+
+                                <td>
+                                    {{ movement.created_at|date:"d M Y, H:i" }}
+                                </td>
+
+                            </tr>
+
+                        {% empty %}
+
+                            <tr>
+
+                                <td colspan="6">
+                                    No stock movements recorded yet.
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}

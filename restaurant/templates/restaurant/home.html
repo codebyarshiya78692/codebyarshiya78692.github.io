@@ -4,11 +4,13 @@
 IDDS | Integrated Digital Dining System
 {% endblock %}
 
+
 {% block content %}
 
-<!-- =========================
+<!-- =========================================================
      HERO
-     ========================= -->
+     ========================================================= -->
+
 <section class="hero-section">
 
     <div class="container">
@@ -26,10 +28,13 @@ IDDS | Integrated Digital Dining System
             </h1>
 
             <p class="hero-description">
+
                 From choosing your table to placing your order
                 and tracking it in real time, IDDS connects
                 every part of your dining experience.
+
             </p>
+
 
             <div class="hero-actions">
 
@@ -39,6 +44,7 @@ IDDS | Integrated Digital Dining System
                 >
                     Start Dining
                 </a>
+
 
                 <a
                     href="{% url 'table_selection' %}"
@@ -56,9 +62,10 @@ IDDS | Integrated Digital Dining System
 </section>
 
 
-<!-- =========================
-     EXPERIENCE INTRO
-     ========================= -->
+<!-- =========================================================
+     CUSTOMER EXPERIENCE
+     ========================================================= -->
+
 <section class="experience-section">
 
     <div class="container">
@@ -85,7 +92,9 @@ IDDS | Integrated Digital Dining System
 
         <div class="feature-grid">
 
-            <!-- Feature 1 -->
+
+            <!-- FEATURE 01 -->
+
             <article class="feature-card reveal">
 
                 <span class="feature-number">
@@ -105,7 +114,8 @@ IDDS | Integrated Digital Dining System
             </article>
 
 
-            <!-- Feature 2 -->
+            <!-- FEATURE 02 -->
+
             <article class="feature-card reveal">
 
                 <span class="feature-number">
@@ -125,7 +135,8 @@ IDDS | Integrated Digital Dining System
             </article>
 
 
-            <!-- Feature 3 -->
+            <!-- FEATURE 03 -->
+
             <article class="feature-card reveal">
 
                 <span class="feature-number">
@@ -145,7 +156,8 @@ IDDS | Integrated Digital Dining System
             </article>
 
 
-            <!-- Feature 4 -->
+            <!-- FEATURE 04 -->
+
             <article class="feature-card reveal">
 
                 <span class="feature-number">
@@ -170,9 +182,10 @@ IDDS | Integrated Digital Dining System
 </section>
 
 
-<!-- =========================
+<!-- =========================================================
      CUSTOMER JOURNEY
-     ========================= -->
+     ========================================================= -->
+
 <section class="journey-section">
 
     <div class="container">
@@ -197,6 +210,7 @@ IDDS | Integrated Digital Dining System
                 integrated system.
             </p>
 
+
             <a
                 href="{% url 'table_selection' %}"
                 class="btn btn-secondary"
@@ -211,9 +225,10 @@ IDDS | Integrated Digital Dining System
 </section>
 
 
-<!-- =========================
-     CALL TO ACTION
-     ========================= -->
+<!-- =========================================================
+     CUSTOMER CTA
+     ========================================================= -->
+
 <section class="cta-section">
 
     <div class="container">
@@ -232,6 +247,7 @@ IDDS | Integrated Digital Dining System
                 Start your dining experience with IDDS.
             </p>
 
+
             <a
                 href="{% url 'table_selection' %}"
                 class="btn btn-primary"
@@ -244,5 +260,52 @@ IDDS | Integrated Digital Dining System
     </div>
 
 </section>
+
+
+<!-- =========================================================
+     STAFF ACCESS
+     ========================================================= -->
+
+<section class="staff-access-section">
+
+    <div class="container">
+
+        <div class="staff-access-card reveal">
+
+            <div>
+
+                <p class="eyebrow">
+                    RESTAURANT TEAM
+                </p>
+
+                <h2>
+                    Staff access
+                </h2>
+
+                <p>
+                    Admins, chefs and waiters can sign in
+                    to their dedicated restaurant workspace.
+                </p>
+
+            </div>
+
+
+            <div class="staff-access-action">
+
+                <a
+                    href="{% url 'accounts:login' %}"
+                    class="text-link"
+                >
+                    Staff Login →
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
 
 {% endblock %}

@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard | IDDS{% endblock %}
+{% block title %}
+    Customer Dashboard | IDDS
+{% endblock %}
+
 
 {% block content %}
 
@@ -8,113 +11,194 @@
 
     <div class="page-container">
 
+        <!-- =====================================================
+             HEADER
+             ===================================================== -->
+
         <div class="dashboard-heading">
+
             <div>
-                <p class="eyebrow">CUSTOMER AREA</p>
+
+                <p class="eyebrow">
+                    CUSTOMER AREA
+                </p>
 
                 <h1>
                     Welcome, {{ user.username }} 👋
                 </h1>
 
                 <p>
-                    Manage your dining experience from one place.
+                    Manage your complete dining experience
+                    from one place.
                 </p>
+
             </div>
 
-            <a href="{% url 'restaurant:menu' %}"
-               class="btn btn-primary">
-                Browse Menu
-            </a>
+
+            <div class="dashboard-heading-actions">
+
+                <a
+                    href="{% url 'table_selection' %}"
+                    class="btn btn-primary"
+                >
+                    Choose a Table
+                </a>
+
+            </div>
+
         </div>
 
+
+        <!-- =====================================================
+             ACTIVE ORDER
+             ===================================================== -->
 
         {% if active_order %}
 
-        <div class="dashboard-card active-order-card">
+            <div class="dashboard-card active-order-card">
 
-            <div class="card-header">
+                <div class="card-header">
 
-                <div>
-                    <span class="status-label">
-                        ACTIVE ORDER
+                    <div>
+
+                        <span class="status-label">
+                            ACTIVE ORDER
+                        </span>
+
+                        <h2>
+                            Order #{{ active_order.id }}
+                        </h2>
+
+                    </div>
+
+
+                    <span class="order-status">
+                        {{ active_order.get_status_display }}
                     </span>
 
-                    <h2>
-                        Order #{{ active_order.id }}
-                    </h2>
                 </div>
 
-                <span class="order-status">
-                    {{ active_order.get_status_display }}
-                </span>
+
+                <div class="active-order-info">
+
+                    <div>
+
+                        <span>
+                            Table
+                        </span>
+
+                        <strong>
+                            {{ active_order.session.table.table_number }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Items
+                        </span>
+
+                        <strong>
+                            {{ active_order.items.count }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Total
+                        </span>
+
+                        <strong>
+                            ₹{{ active_order.total_amount }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card-actions">
+
+                    <a
+                        href="{% url 'order_tracking' active_order.id %}"
+                        class="btn btn-secondary"
+                    >
+                        Track Order
+                    </a>
+
+
+                    <a
+                        href="{% url 'service_requests' %}"
+                        class="btn btn-secondary"
+                    >
+                        Request Service
+                    </a>
+
+                </div>
 
             </div>
-
-            <div class="active-order-info">
-
-                <div>
-                    <span>Table</span>
-                    <strong>
-                        {{ active_order.session.table.table_number }}
-                    </strong>
-                </div>
-
-                <div>
-                    <span>Items</span>
-                    <strong>
-                        {{ active_order.items.count }}
-                    </strong>
-                </div>
-
-                <div>
-                    <span>Total</span>
-                    <strong>
-                        ₹{{ active_order.total_amount }}
-                    </strong>
-                </div>
-
-            </div>
-
-            <a href="{% url 'orders:order_detail' active_order.id %}"
-               class="btn btn-secondary">
-                Track Order
-            </a>
-
-        </div>
 
         {% else %}
 
-        <div class="dashboard-card empty-order">
+            <div class="dashboard-card empty-order">
 
-            <div class="empty-icon">🍽️</div>
+                <div class="empty-icon">
+                    🍽️
+                </div>
 
-            <h2>No active order</h2>
+                <h2>
+                    No active order
+                </h2>
 
-            <p>
-                Ready to order something delicious?
-            </p>
+                <p>
+                    Ready to order something delicious?
+                </p>
 
-            <a href="{% url 'restaurant:menu' %}"
-               class="btn btn-primary">
-                Explore Menu
-            </a>
 
-        </div>
+                <a
+                    href="{% url 'table_selection' %}"
+                    class="btn btn-primary"
+                >
+                    Choose a Table
+                </a>
+
+            </div>
 
         {% endif %}
 
 
+        <!-- =====================================================
+             RECENT ORDERS
+             ===================================================== -->
+
         <div class="dashboard-section">
 
             <div class="section-heading">
+
                 <div>
-                    <p class="eyebrow">YOUR ACTIVITY</p>
-                    <h2>Recent Orders</h2>
+
+                    <p class="eyebrow">
+                        YOUR ACTIVITY
+                    </p>
+
+                    <h2>
+                        Recent Orders
+                    </h2>
+
                 </div>
 
-                <a href="{% url 'orders:my_orders' %}">
+
+                <a
+                    href="{% url 'orders:my_orders' %}"
+                >
                     View all →
                 </a>
+
             </div>
 
 
@@ -124,35 +208,43 @@
 
                     {% for order in recent_orders %}
 
-                    <div class="order-row">
+                        <div class="order-row">
 
-                        <div>
-                            <strong>
-                                Order #{{ order.id }}
-                            </strong>
+                            <div>
 
-                            <span>
-                                Table {{ order.session.table.table_number }}
-                            </span>
+                                <strong>
+                                    Order #{{ order.id }}
+                                </strong>
+
+                                <span>
+                                    Table
+                                    {{ order.session.table.table_number }}
+                                </span>
+
+                            </div>
+
+
+                            <div class="order-row-right">
+
+                                <span class="order-status">
+                                    {{ order.get_status_display }}
+                                </span>
+
+
+                                <strong>
+                                    ₹{{ order.total_amount }}
+                                </strong>
+
+
+                                <a
+                                    href="{% url 'orders:order_detail' order.id %}"
+                                >
+                                    View
+                                </a>
+
+                            </div>
+
                         </div>
-
-                        <div class="order-row-right">
-
-                            <span class="order-status">
-                                {{ order.get_status_display }}
-                            </span>
-
-                            <strong>
-                                ₹{{ order.total_amount }}
-                            </strong>
-
-                            <a href="{% url 'orders:order_detail' order.id %}">
-                                View
-                            </a>
-
-                        </div>
-
-                    </div>
 
                     {% endfor %}
 
@@ -161,11 +253,18 @@
             {% else %}
 
                 <div class="dashboard-card empty-small">
-                    <p>You haven't placed any orders yet.</p>
 
-                    <a href="{% url 'restaurant:menu' %}">
-                        Browse the menu →
+                    <p>
+                        You haven't placed any orders yet.
+                    </p>
+
+
+                    <a
+                        href="{% url 'table_selection' %}"
+                    >
+                        Start your first order →
                     </a>
+
                 </div>
 
             {% endif %}
@@ -173,24 +272,114 @@
         </div>
 
 
+        <!-- =====================================================
+             CUSTOMER QUICK ACTIONS
+             ===================================================== -->
+
         <div class="quick-actions">
 
-            <a href="{% url 'restaurant:menu' %}" class="quick-card">
-                <span>🍴</span>
-                <strong>Browse Menu</strong>
-                <small>Discover our dishes</small>
+
+            <a
+                href="{% url 'table_selection' %}"
+                class="quick-card"
+            >
+
+                <span>
+                    🪑
+                </span>
+
+                <strong>
+                    Choose a Table
+                </strong>
+
+                <small>
+                    View available tables
+                </small>
+
             </a>
 
-            <a href="{% url 'orders:cart' %}" class="quick-card">
-                <span>🛒</span>
-                <strong>Your Cart</strong>
-                <small>Review your selection</small>
+
+            <a
+                href="{% url 'cart' %}"
+                class="quick-card"
+            >
+
+                <span>
+                    🛒
+                </span>
+
+                <strong>
+                    Your Cart
+                </strong>
+
+                <small>
+                    Review your selection
+                </small>
+
             </a>
 
-            <a href="{% url 'orders:my_orders' %}" class="quick-card">
-                <span>📋</span>
-                <strong>Order History</strong>
-                <small>See previous orders</small>
+
+            <a
+                href="{% url 'orders:my_orders' %}"
+                class="quick-card"
+            >
+
+                <span>
+                    📋
+                </span>
+
+                <strong>
+                    Order History
+                </strong>
+
+                <small>
+                    See your previous orders
+                </small>
+
+            </a>
+
+
+            <a
+                href="{% url 'service_requests' %}"
+                class="quick-card"
+            >
+
+                <span>
+                    🔔
+                </span>
+
+                <strong>
+                    Service Request
+                </strong>
+
+                <small>
+                    Ask the restaurant team
+                </small>
+
+            </a>
+
+        </div>
+
+
+        <!-- =====================================================
+             CUSTOMER NAVIGATION
+             ===================================================== -->
+
+        <div class="dashboard-footer-actions">
+
+            <a
+                href="{% url 'home' %}"
+                class="text-link"
+            >
+                ← Back to Home
+            </a>
+
+
+            <a
+                href="{% url 'accounts:logout' %}"
+                class="text-link"
+            >
+                Logout
             </a>
 
         </div>
