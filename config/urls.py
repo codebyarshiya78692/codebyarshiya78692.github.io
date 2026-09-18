@@ -46,6 +46,16 @@ urlpatterns = [
 
 
     # ============================================================
+    # RESTAURANT TABLE MANAGEMENT
+    # ============================================================
+
+    path(
+        "restaurant/",
+        include("restaurant.urls"),
+    ),
+
+
+    # ============================================================
     # ACCOUNTS / LOGIN / STAFF
     # ============================================================
 
@@ -193,12 +203,14 @@ urlpatterns = [
 
 
 # ================================================================
-# DEVELOPMENT MEDIA FILES
+# MEDIA FILES
 # ================================================================
+#
+# The project is being run locally with Django's development
+# server, so serve uploaded menu images directly.
+#
 
-if settings.DEBUG:
-
-    urlpatterns += static(
-        settings.MEDIA_URL,
-        document_root=settings.MEDIA_ROOT,
-    )
+urlpatterns += static(
+    settings.MEDIA_URL,
+    document_root=settings.MEDIA_ROOT,
+)

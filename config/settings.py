@@ -170,7 +170,7 @@ USE_TZ = True
 # STATIC FILES
 # ============================================================
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 # Project-level static folder
 STATICFILES_DIRS = [
@@ -182,7 +182,7 @@ STATICFILES_DIRS = [
 # MEDIA FILES
 # ============================================================
 
-MEDIA_URL = 'media/'
+MEDIA_URL = '/media/'
 
 MEDIA_ROOT = BASE_DIR / 'media'
 

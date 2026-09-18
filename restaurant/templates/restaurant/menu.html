@@ -1,86 +1,140 @@
 {% extends "base.html" %}
 
-
-{% block title %}
-IDDS | Digital Menu
-{% endblock %}
-
+{% block title %}IDDS | Digital Menu{% endblock %}
 
 {% block extra_css %}
 
 <style>
 
-    /* ========================================================
-       MENU FOOD IMAGES
-       ======================================================== */
+    /* ============================================================
+       DIGITAL MENU
+       ============================================================ */
+
+    .menu-category {
+        margin-bottom: 4rem;
+    }
+
+    .category-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .category-heading h2 {
+        margin: 0;
+    }
+
+    .category-description {
+        max-width: 360px;
+        margin: 0;
+    }
+
+
+    /* ============================================================
+       MENU GRID
+       ============================================================ */
+
+    .menu-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1.5rem;
+    }
+
+
+    /* ============================================================
+       MENU CARD
+       ============================================================ */
+
+    .menu-card {
+        overflow: hidden;
+        padding: 0 !important;
+        border-radius: 18px;
+        background: #ffffff;
+        border: 1px solid rgba(80, 60, 45, 0.14);
+        box-shadow: 0 12px 30px rgba(40, 30, 20, 0.07);
+        transition:
+            transform 0.35s ease,
+            box-shadow 0.35s ease;
+    }
+
+    .menu-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 20px 45px rgba(40, 30, 20, 0.14);
+    }
+
+
+    /* ============================================================
+       FOOD IMAGE
+       ============================================================ */
 
     .menu-card-image {
         position: relative;
 
         width: 100%;
-        height: 280px;
+        height: 260px;
 
         overflow: hidden;
 
-        background:
-            linear-gradient(
-                135deg,
-                #e8ddd1,
-                #f8f5f0
-            );
+        background: #eee6dc;
     }
-
 
     .menu-card-image img {
-        width: 100%;
-        height: 100%;
+        display: block !important;
 
-        display: block;
+        width: 100% !important;
+        height: 100% !important;
 
-        object-fit: cover;
+        min-width: 100%;
+        min-height: 100%;
+
+        max-width: none !important;
+
+        object-fit: cover !important;
+
+        opacity: 1 !important;
+        visibility: visible !important;
 
         transition:
-            transform 900ms cubic-bezier(
-                0.22,
-                1,
-                0.36,
-                1
-            );
+            transform 0.6s ease;
     }
-
 
     .menu-card:hover .menu-card-image img {
-        transform: scale(1.055);
+        transform: scale(1.06);
     }
 
 
-    .menu-card-image::after {
-        content: "";
+    /* ============================================================
+       IMAGE ERROR
+       ============================================================ */
 
+    .menu-image-error {
         position: absolute;
 
         inset: 0;
 
-        pointer-events: none;
+        display: none;
 
-        background:
-            linear-gradient(
-                180deg,
-                rgba(43, 33, 27, 0.02),
-                rgba(43, 33, 27, 0.10)
-            );
+        align-items: center;
+        justify-content: center;
 
-        opacity: 0;
+        padding: 20px;
 
-        transition:
-            opacity 500ms ease;
+        text-align: center;
+
+        background: #eee6dc;
+
+        color: #6f5b4b;
+
+        font-size: 0.9rem;
+        font-weight: 600;
     }
 
 
-    .menu-card:hover .menu-card-image::after {
-        opacity: 1;
-    }
-
+    /* ============================================================
+       PLACEHOLDER
+       ============================================================ */
 
     .menu-card-image-placeholder {
         display: flex;
@@ -88,50 +142,92 @@ IDDS | Digital Menu
         align-items: center;
         justify-content: center;
 
-        text-align: center;
+        width: 100%;
+        height: 260px;
 
         background:
-            radial-gradient(
-                circle at 30% 25%,
-                rgba(201, 166, 107, 0.18),
-                transparent 28%
-            ),
             linear-gradient(
                 135deg,
                 #eee6dc,
                 #f8f5f0
             );
-    }
 
+        color: #806b58;
 
-    .menu-card-image-placeholder span {
-        padding: 0.6rem 0.9rem;
-
-        border: 1px solid var(--color-border);
-
-        border-radius: 999px;
-
-        background:
-            rgba(255, 255, 255, 0.65);
-
-        color: var(--color-text-muted);
-
-        font-size: 0.72rem;
-
+        font-size: 0.8rem;
         font-weight: 700;
 
         letter-spacing: 0.08em;
-
         text-transform: uppercase;
     }
 
 
-    .menu-card-with-image {
-        min-height: 0;
+    /* ============================================================
+       CARD CONTENT
+       ============================================================ */
+
+    .menu-card-top {
+        padding: 1rem 1.25rem 0;
+    }
+
+    .menu-card-content {
+        padding: 0 1.25rem 1.25rem;
+    }
+
+    .menu-card-content h3 {
+        margin-top: 0.4rem;
+        margin-bottom: 0.6rem;
+    }
+
+    .menu-card-content p {
+        margin-bottom: 1.2rem;
     }
 
 
-    @media (max-width: 700px) {
+    /* ============================================================
+       PRICE / BUTTON
+       ============================================================ */
+
+    .menu-card-bottom {
+        display: flex;
+
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 1rem;
+    }
+
+    .price {
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+
+    /* ============================================================
+       MOBILE
+       ============================================================ */
+
+    @media (max-width: 1000px) {
+
+        .menu-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+    }
+
+    @media (max-width: 650px) {
+
+        .menu-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .category-heading {
+            display: block;
+        }
+
+        .category-description {
+            margin-top: 0.75rem;
+        }
 
         .menu-card-image {
             height: 240px;
@@ -146,15 +242,13 @@ IDDS | Digital Menu
 
 {% block content %}
 
-
-<!-- =========================================================
-     CUSTOMER MENU HEADER
-     ========================================================= -->
+<!-- ============================================================
+     HEADER
+     ============================================================ -->
 
 <header class="customer-header">
 
     <div class="container customer-header-inner">
-
 
         <a
             href="{% url 'home' %}"
@@ -163,20 +257,16 @@ IDDS | Digital Menu
             IDDS
         </a>
 
-
         <div class="header-info">
-
 
             <span>
                 Table {{ table.table_number }}
             </span>
 
-
             <a
                 href="{% url 'cart' %}"
                 class="cart-link"
             >
-
                 Cart
 
                 <span
@@ -188,7 +278,6 @@ IDDS | Digital Menu
 
             </a>
 
-
         </div>
 
     </div>
@@ -196,55 +285,48 @@ IDDS | Digital Menu
 </header>
 
 
-<!-- =========================================================
+<!-- ============================================================
      MENU
-     ========================================================= -->
+     ============================================================ -->
 
 <section class="section page-section">
-
 
     <div class="container">
 
 
-        <!-- =================================================
-             PAGE HEADING
-             ================================================= -->
+        <!-- ======================================================
+             TITLE
+             ====================================================== -->
 
         <div class="page-heading reveal">
-
 
             <p class="eyebrow">
                 TABLE {{ table.table_number }}
             </p>
 
-
             <h1>
                 Digital Menu
             </h1>
 
-
             <p>
-                Explore our menu and add your favourites
-                to your order.
+                Explore our menu and add your favourites to your order.
             </p>
-
 
         </div>
 
 
-        <!-- =================================================
-             MESSAGE AREA
-             ================================================= -->
+        <!-- ======================================================
+             MESSAGE
+             ====================================================== -->
 
         <div id="menu-message"></div>
 
 
-        <!-- =================================================
-             MENU CATEGORIES
-             ================================================= -->
+        <!-- ======================================================
+             CATEGORIES
+             ====================================================== -->
 
         {% for category in categories %}
-
 
             <section class="menu-category">
 
@@ -253,41 +335,32 @@ IDDS | Digital Menu
 
                 <div class="category-heading reveal">
 
-
                     <div>
-
 
                         <p class="eyebrow">
                             MENU
                         </p>
 
-
                         <h2>
                             {{ category.name }}
                         </h2>
-
 
                     </div>
 
 
                     {% if category.description %}
 
-
                         <p class="category-description">
-
                             {{ category.description }}
-
                         </p>
 
-
                     {% endif %}
-
 
                 </div>
 
 
                 <!-- =================================================
-                     MENU ITEMS
+                     ITEMS
                      ================================================= -->
 
                 <div class="menu-grid">
@@ -295,75 +368,63 @@ IDDS | Digital Menu
 
                     {% for item in category.items.all %}
 
-
                         {% if item.is_available %}
 
 
                             <article
-                                class="
-                                    menu-card
-                                    menu-card-with-image
-                                    reveal
-                                "
+                                class="menu-card reveal"
                             >
 
 
                                 <!-- =================================
-                                     REAL DATABASE FOOD IMAGE
+                                     FOOD IMAGE
                                      ================================= -->
 
                                 {% if item.image %}
 
-
-                                    <div class="menu-card-image">
-
+                                    <div
+                                        class="menu-card-image"
+                                    >
 
                                         <img
-                                            src="{{ item.image.url }}"
+                                            src="/media/{{ item.image.name }}"
                                             alt="{{ item.name }}"
-                                            loading="lazy"
+                                            loading="eager"
+                                            decoding="async"
+                                            width="1200"
+                                            height="800"
+                                            onerror="
+                                                this.style.display='none';
+                                                this.nextElementSibling.style.display='flex';
+                                            "
                                         >
 
+                                        <div
+                                            class="menu-image-error"
+                                        >
+                                            Image unavailable
+                                        </div>
 
                                     </div>
-
 
                                 {% else %}
 
-
-                                    <!-- =================================
-                                         IMAGE PLACEHOLDER
-
-                                         This is NOT dummy food data.
-
-                                         It simply keeps the card
-                                         attractive until you upload
-                                         the real image through Admin.
-                                         ================================= -->
-
                                     <div
                                         class="
-                                            menu-card-image
                                             menu-card-image-placeholder
                                         "
                                     >
-
-                                        <span>
-                                            Food image coming soon
-                                        </span>
-
+                                        Food image coming soon
                                     </div>
-
 
                                 {% endif %}
 
 
                                 <!-- =================================
-                                     CATEGORY LABEL
+                                     CATEGORY
                                      ================================= -->
 
                                 <div class="menu-card-top">
-
 
                                     <span
                                         class="menu-category-tag"
@@ -371,16 +432,14 @@ IDDS | Digital Menu
                                         {{ category.name }}
                                     </span>
 
-
                                 </div>
 
 
                                 <!-- =================================
-                                     ITEM CONTENT
+                                     DETAILS
                                      ================================= -->
 
                                 <div class="menu-card-content">
-
 
                                     <h3>
                                         {{ item.name }}
@@ -389,11 +448,9 @@ IDDS | Digital Menu
 
                                     {% if item.description %}
 
-
                                         <p>
                                             {{ item.description }}
                                         </p>
-
 
                                     {% endif %}
 
@@ -403,7 +460,6 @@ IDDS | Digital Menu
                                          ================================= -->
 
                                     <div class="menu-card-bottom">
-
 
                                         <strong class="price">
                                             ₹{{ item.price }}
@@ -422,93 +478,69 @@ IDDS | Digital Menu
                                             Add to Cart
                                         </button>
 
-
                                     </div>
 
-
                                 </div>
-
 
                             </article>
 
 
                         {% endif %}
 
-
                     {% empty %}
-
 
                         <p class="muted">
                             No items available in this category.
                         </p>
 
-
                     {% endfor %}
 
-
                 </div>
-
 
             </section>
 
 
         {% empty %}
 
-
-            <!-- =================================================
-                 EMPTY MENU
-                 ================================================= -->
-
             <div class="empty-state">
-
 
                 <h2>
                     Menu coming soon
                 </h2>
 
-
                 <p>
                     Menu items have not been added yet.
                 </p>
 
-
             </div>
-
 
         {% endfor %}
 
 
     </div>
 
-
 </section>
-
 
 {% endblock %}
 
 
 {% block extra_js %}
 
-
 <script>
-
 
 document.addEventListener(
     "DOMContentLoaded",
-    () => {
-
+    function () {
 
         const buttons =
             document.querySelectorAll(
                 ".add-to-cart"
             );
 
-
         const cartCount =
             document.getElementById(
                 "cart-count"
             );
-
 
         const messageBox =
             document.getElementById(
@@ -518,28 +550,22 @@ document.addEventListener(
 
         function getCookie(name) {
 
-
             let cookieValue = null;
-
 
             if (
                 document.cookie &&
                 document.cookie !== ""
             ) {
 
-
                 const cookies =
                     document.cookie.split(";");
-
 
                 for (
                     let cookie of cookies
                 ) {
 
-
                     cookie =
                         cookie.trim();
-
 
                     if (
                         cookie.substring(
@@ -549,7 +575,6 @@ document.addEventListener(
                         name + "="
                     ) {
 
-
                         cookieValue =
                             decodeURIComponent(
                                 cookie.substring(
@@ -557,18 +582,12 @@ document.addEventListener(
                                 )
                             );
 
-
                         break;
-
                     }
-
                 }
-
             }
 
-
             return cookieValue;
-
         }
 
 
@@ -577,6 +596,9 @@ document.addEventListener(
             type
         ) {
 
+            if (!messageBox) {
+                return;
+            }
 
             messageBox.innerHTML = `
                 <div class="${type}-message">
@@ -584,51 +606,40 @@ document.addEventListener(
                 </div>
             `;
 
-
             window.clearTimeout(
                 window.iddsMenuMessageTimer
             );
 
-
             window.iddsMenuMessageTimer =
                 window.setTimeout(
-                    () => {
-
+                    function () {
                         messageBox.innerHTML = "";
-
                     },
                     2500
                 );
-
         }
 
 
         buttons.forEach(
-            (button) => {
-
+            function (button) {
 
                 button.addEventListener(
                     "click",
-                    async () => {
-
+                    async function () {
 
                         const itemId =
                             button.dataset.itemId;
 
-
-                        button.disabled = true;
-
-
                         const originalText =
                             button.textContent;
 
+                        button.disabled = true;
 
                         button.textContent =
                             "Adding…";
 
 
                         try {
-
 
                             const response =
                                 await fetch(
@@ -653,71 +664,53 @@ document.addEventListener(
                                 await response.json();
 
 
-                            if (
-                                data.success
-                            ) {
+                            if (data.success) {
 
-
-                                if (
-                                    cartCount
-                                ) {
+                                if (cartCount) {
 
                                     cartCount.textContent =
                                         data.cart_count;
-
                                 }
-
 
                                 showMessage(
                                     data.message,
                                     "success"
                                 );
 
-
                             } else {
-
 
                                 showMessage(
                                     data.message,
                                     "error"
                                 );
-
                             }
 
 
                         } catch (error) {
-
 
                             showMessage(
                                 "Something went wrong. Please try again.",
                                 "error"
                             );
 
-
                         } finally {
-
 
                             button.disabled = false;
 
                             button.textContent =
                                 originalText;
-
                         }
-
 
                     }
                 );
 
-
             }
         );
 
-
     }
-);
 
+);
 
 </script>
 
-
-{% endblock %}
+{% endblock %}  
