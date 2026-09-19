@@ -441,17 +441,18 @@ def dashboard(request):
 # ============================================================
 
 @login_required
+@login_required
 def waiter_dashboard(request):
     """
-    Waiter operational dashboard.
+    Simple waiter operational dashboard.
 
-    Waiters can see:
+    Waiters handle only:
+        - Food orders marked READY by the kitchen
+        - Water requests
+        - Cutlery requests
+        - Bill requests
 
-        - Active dining tables
-        - Pending service requests
-        - Accepted service requests
-        - Orders ready to be served
-        - Recently completed service requests
+    Chef food/custom requests are never shown here.
     """
 
     if _staff_role(request.user) != "waiter":
@@ -463,49 +464,15 @@ def waiter_dashboard(request):
 
         return redirect("home")
 
-    active_sessions = (
-        DiningSession.objects
-        .filter(
-            status="active",
-        )
-        .select_related(
-            "table",
-        )
-        .prefetch_related(
-            "orders",
-        )
-        .order_by(
-            "table__table_number",
-        )
-    )
+    waiter_request_types = [
+        "water",
+        "cutlery",
+        "bill",
+    ]
 
-    pending_requests = (
-        ServiceRequest.objects
-        .filter(
-            status="requested",
-        )
-        .select_related(
-            "session",
-            "session__table",
-        )
-        .order_by(
-            "requested_at",
-        )
-    )
-
-    accepted_requests = (
-        ServiceRequest.objects
-        .filter(
-            status="accepted",
-        )
-        .select_related(
-            "session",
-            "session__table",
-        )
-        .order_by(
-            "requested_at",
-        )
-    )
+    # --------------------------------------------------------
+    # FOOD READY TO SERVE
+    # --------------------------------------------------------
 
     ready_orders = (
         Order.objects
@@ -524,32 +491,47 @@ def waiter_dashboard(request):
         )
     )
 
-    completed_requests = (
+    # --------------------------------------------------------
+    # CUSTOMER REQUESTS
+    #
+    # Only waiter requests are included.
+    #
+    # requested = needs attention
+    # accepted  = waiter has accepted it
+    # --------------------------------------------------------
+
+    waiter_requests = (
         ServiceRequest.objects
         .filter(
-            status="completed",
+            request_type__in=waiter_request_types,
+            status__in=[
+                "requested",
+                "accepted",
+            ],
         )
         .select_related(
             "session",
             "session__table",
         )
         .order_by(
-            "-completed_at",
-        )[:20]
+            "status",
+            "requested_at",
+        )
     )
+
+    new_request_count = waiter_requests.filter(
+        status="requested",
+    ).count()
 
     return render(
         request,
         "accounts/waiter_dashboard.html",
         {
-            "active_sessions": active_sessions,
-            "pending_requests": pending_requests,
-            "accepted_requests": accepted_requests,
             "ready_orders": ready_orders,
-            "completed_requests": completed_requests,
+            "waiter_requests": waiter_requests,
+            "new_request_count": new_request_count,
         },
     )
-
 
 # ============================================================
 # WAITER - ACCEPT SERVICE REQUEST
@@ -576,6 +558,7 @@ def waiter_accept_request(request, request_id):
     service_request = get_object_or_404(
         ServiceRequest,
         id=request_id,
+        request_type__in=["water", "cutlery", "bill"],
     )
 
     if service_request.status != "requested":
@@ -636,6 +619,7 @@ def waiter_complete_request(request, request_id):
     service_request = get_object_or_404(
         ServiceRequest,
         id=request_id,
+        request_type__in=["water", "cutlery", "bill"],
     )
 
     if service_request.status != "accepted":

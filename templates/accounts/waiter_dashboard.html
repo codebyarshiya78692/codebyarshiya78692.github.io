@@ -4,16 +4,15 @@
 Waiter Dashboard | IDDS
 {% endblock %}
 
-
 {% block content %}
 
 <section class="page-section">
 
     <div class="container">
 
-        <!-- =================================================
+        <!-- ==================================================
              HEADER
-             ================================================= -->
+             ================================================== -->
 
         <div class="page-heading reveal">
 
@@ -26,74 +25,23 @@ Waiter Dashboard | IDDS
             </h1>
 
             <p>
-                Manage customer requests, monitor tables,
-                and serve completed kitchen orders.
+                Serve food prepared by the kitchen and handle
+                customer service requests.
             </p>
 
         </div>
 
 
-        <!-- =================================================
-             QUICK SUMMARY
-             ================================================= -->
+        <!-- ==================================================
+             SIMPLE SUMMARY
+             ================================================== -->
 
         <div class="kitchen-summary-grid">
 
             <div class="summary-card">
 
                 <span class="summary-label">
-                    Active Tables
-                </span>
-
-                <strong>
-                    {{ active_sessions|length }}
-                </strong>
-
-                <small>
-                    Currently dining
-                </small>
-
-            </div>
-
-
-            <div class="summary-card">
-
-                <span class="summary-label">
-                    New Requests
-                </span>
-
-                <strong>
-                    {{ pending_requests|length }}
-                </strong>
-
-                <small>
-                    Waiting for waiter
-                </small>
-
-            </div>
-
-
-            <div class="summary-card">
-
-                <span class="summary-label">
-                    Accepted Requests
-                </span>
-
-                <strong>
-                    {{ accepted_requests|length }}
-                </strong>
-
-                <small>
-                    Currently being handled
-                </small>
-
-            </div>
-
-
-            <div class="summary-card">
-
-                <span class="summary-label">
-                    Ready Orders
+                    READY TO SERVE
                 </span>
 
                 <strong>
@@ -101,7 +49,24 @@ Waiter Dashboard | IDDS
                 </strong>
 
                 <small>
-                    Waiting to be served
+                    Food from kitchen
+                </small>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <span class="summary-label">
+                    CUSTOMER REQUESTS
+                </span>
+
+                <strong>
+                    {{ new_request_count }}
+                </strong>
+
+                <small>
+                    Need your attention
                 </small>
 
             </div>
@@ -109,11 +74,11 @@ Waiter Dashboard | IDDS
         </div>
 
 
-        <!-- =================================================
-             READY ORDERS
-             ================================================= -->
+        <!-- ==================================================
+             FOOD READY
+             ================================================== -->
 
-        <div class="confirmation-card reveal">
+        <section class="confirmation-card reveal">
 
             <div class="section-heading">
 
@@ -124,8 +89,13 @@ Waiter Dashboard | IDDS
                     </p>
 
                     <h2>
-                        Orders Ready to Serve
+                        Food Ready to Serve
                     </h2>
+
+                    <p>
+                        Only orders marked <strong>Ready</strong>
+                        by the Chef appear here.
+                    </p>
 
                 </div>
 
@@ -141,11 +111,27 @@ Waiter Dashboard | IDDS
                         <thead>
 
                             <tr>
-                                <th>Order</th>
-                                <th>Table</th>
-                                <th>Customer</th>
-                                <th>Items</th>
-                                <th>Action</th>
+
+                                <th>
+                                    Order
+                                </th>
+
+                                <th>
+                                    Table
+                                </th>
+
+                                <th>
+                                    Customer
+                                </th>
+
+                                <th>
+                                    Items
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
                             </tr>
 
                         </thead>
@@ -163,18 +149,33 @@ Waiter Dashboard | IDDS
                                         </strong>
                                     </td>
 
+
                                     <td>
                                         Table
                                         {{ order.session.table.table_number }}
                                     </td>
 
+
                                     <td>
                                         {{ order.session.customer_name|default:"Guest" }}
                                     </td>
 
+
                                     <td>
-                                        {{ order.items.all|length }}
+
+                                        {% for item in order.items.all %}
+
+                                            {{ item.item_name }}
+                                            × {{ item.quantity }}
+
+                                            {% if not forloop.last %}
+                                                <br>
+                                            {% endif %}
+
+                                        {% endfor %}
+
                                     </td>
+
 
                                     <td>
 
@@ -189,7 +190,7 @@ Waiter Dashboard | IDDS
                                                 type="submit"
                                                 class="btn btn-primary"
                                             >
-                                                Mark Served
+                                                Serve Food
                                             </button>
 
                                         </form>
@@ -208,20 +209,29 @@ Waiter Dashboard | IDDS
 
             {% else %}
 
-                <p>
-                    No orders are currently waiting to be served.
-                </p>
+                <div class="empty-state">
+
+                    <h3>
+                        No food is waiting for service
+                    </h3>
+
+                    <p>
+                        When the Chef marks an order as ready,
+                        it will appear here.
+                    </p>
+
+                </div>
 
             {% endif %}
 
-        </div>
+        </section>
 
 
-        <!-- =================================================
-             PENDING SERVICE REQUESTS
-             ================================================= -->
+        <!-- ==================================================
+             CUSTOMER REQUESTS
+             ================================================== -->
 
-        <div class="confirmation-card reveal">
+        <section class="confirmation-card reveal">
 
             <div class="section-heading">
 
@@ -232,15 +242,20 @@ Waiter Dashboard | IDDS
                     </p>
 
                     <h2>
-                        New Service Requests
+                        Customer Requests
                     </h2>
+
+                    <p>
+                        Only water, cutlery and bill requests
+                        are handled by the waiter.
+                    </p>
 
                 </div>
 
             </div>
 
 
-            {% if pending_requests %}
+            {% if waiter_requests %}
 
                 <div class="report-table-wrapper">
 
@@ -249,11 +264,31 @@ Waiter Dashboard | IDDS
                         <thead>
 
                             <tr>
-                                <th>Table</th>
-                                <th>Request</th>
-                                <th>Message</th>
-                                <th>Requested</th>
-                                <th>Action</th>
+
+                                <th>
+                                    Table
+                                </th>
+
+                                <th>
+                                    Request
+                                </th>
+
+                                <th>
+                                    Message
+                                </th>
+
+                                <th>
+                                    Time
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
                             </tr>
 
                         </thead>
@@ -261,46 +296,97 @@ Waiter Dashboard | IDDS
 
                         <tbody>
 
-                            {% for service_request in pending_requests %}
+                            {% for service_request in waiter_requests %}
 
                                 <tr>
 
                                     <td>
+
                                         <strong>
                                             Table
                                             {{ service_request.session.table.table_number }}
                                         </strong>
+
                                     </td>
 
+
                                     <td>
-                                        {{ service_request.get_request_type_display }}
+
+                                        <strong>
+                                            {{ service_request.get_request_type_display }}
+                                        </strong>
+
                                     </td>
+
 
                                     <td>
                                         {{ service_request.message|default:"—" }}
                                     </td>
+
 
                                     <td>
                                         {{ service_request.requested_at|date:"d M Y, h:i A" }}
                                     </td>
 
+
                                     <td>
 
-                                        <form
-                                            method="post"
-                                            action="{% url 'accounts:waiter_accept_request' service_request.id %}"
-                                        >
+                                        {% if service_request.status == "requested" %}
 
-                                            {% csrf_token %}
+                                            <span class="request-status status-requested">
+                                                New
+                                            </span>
 
-                                            <button
-                                                type="submit"
-                                                class="btn btn-primary"
+                                        {% else %}
+
+                                            <span class="request-status status-accepted">
+                                                Accepted
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {% if service_request.status == "requested" %}
+
+                                            <form
+                                                method="post"
+                                                action="{% url 'accounts:waiter_accept_request' service_request.id %}"
                                             >
-                                                Accept
-                                            </button>
 
-                                        </form>
+                                                {% csrf_token %}
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-primary"
+                                                >
+                                                    Accept
+                                                </button>
+
+                                            </form>
+
+                                        {% else %}
+
+                                            <form
+                                                method="post"
+                                                action="{% url 'accounts:waiter_complete_request' service_request.id %}"
+                                            >
+
+                                                {% csrf_token %}
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-secondary"
+                                                >
+                                                    Mark Done
+                                                </button>
+
+                                            </form>
+
+                                        {% endif %}
 
                                     </td>
 
@@ -316,214 +402,58 @@ Waiter Dashboard | IDDS
 
             {% else %}
 
-                <p>
-                    No new service requests.
-                </p>
+                <div class="empty-state">
 
-            {% endif %}
+                    <h3>
+                        No customer requests
+                    </h3>
 
-        </div>
-
-
-        <!-- =================================================
-             ACCEPTED SERVICE REQUESTS
-             ================================================= -->
-
-        <div class="confirmation-card reveal">
-
-            <div class="section-heading">
-
-                <div>
-
-                    <p class="eyebrow">
-                        IN PROGRESS
+                    <p>
+                        Water, cutlery and bill requests will
+                        appear here.
                     </p>
 
-                    <h2>
-                        Accepted Requests
-                    </h2>
-
                 </div>
-
-            </div>
-
-
-            {% if accepted_requests %}
-
-                <div class="report-table-wrapper">
-
-                    <table class="report-table">
-
-                        <thead>
-
-                            <tr>
-                                <th>Table</th>
-                                <th>Request</th>
-                                <th>Message</th>
-                                <th>Action</th>
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-
-                            {% for service_request in accepted_requests %}
-
-                                <tr>
-
-                                    <td>
-                                        Table
-                                        {{ service_request.session.table.table_number }}
-                                    </td>
-
-                                    <td>
-                                        {{ service_request.get_request_type_display }}
-                                    </td>
-
-                                    <td>
-                                        {{ service_request.message|default:"—" }}
-                                    </td>
-
-                                    <td>
-
-                                        <form
-                                            method="post"
-                                            action="{% url 'accounts:waiter_complete_request' service_request.id %}"
-                                        >
-
-                                            {% csrf_token %}
-
-                                            <button
-                                                type="submit"
-                                                class="btn btn-secondary"
-                                            >
-                                                Complete
-                                            </button>
-
-                                        </form>
-
-                                    </td>
-
-                                </tr>
-
-                            {% endfor %}
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            {% else %}
-
-                <p>
-                    No accepted requests are currently in progress.
-                </p>
 
             {% endif %}
 
-        </div>
+        </section>
 
 
-        <!-- =================================================
-             ACTIVE TABLES
-             ================================================= -->
-
-        <div class="confirmation-card reveal">
-
-            <div class="section-heading">
-
-                <div>
-
-                    <p class="eyebrow">
-                        FLOOR STATUS
-                    </p>
-
-                    <h2>
-                        Active Dining Tables
-                    </h2>
-
-                </div>
-
-            </div>
-
-
-            {% if active_sessions %}
-
-                <div class="report-table-wrapper">
-
-                    <table class="report-table">
-
-                        <thead>
-
-                            <tr>
-                                <th>Table</th>
-                                <th>Customer</th>
-                                <th>Orders</th>
-                                <th>Session Status</th>
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-
-                            {% for session in active_sessions %}
-
-                                <tr>
-
-                                    <td>
-                                        <strong>
-                                            Table
-                                            {{ session.table.table_number }}
-                                        </strong>
-                                    </td>
-
-                                    <td>
-                                        {{ session.customer_name|default:"Guest" }}
-                                    </td>
-
-                                    <td>
-                                        {{ session.orders.all|length }}
-                                    </td>
-
-                                    <td>
-                                        Active
-                                    </td>
-
-                                </tr>
-
-                            {% endfor %}
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            {% else %}
-
-                <p>
-                    No active dining sessions.
-                </p>
-
-            {% endif %}
-
-        </div>
-
-
-        <!-- =================================================
-             NAVIGATION
-             ================================================= -->
+        <!-- ==================================================
+             QUICK ACTIONS
+             ================================================== -->
 
         <div class="quick-actions">
+
+            <a
+                href="{% url 'billing:dashboard' %}"
+                class="quick-card"
+            >
+
+                <span>
+                    💳
+                </span>
+
+                <strong>
+                    Billing
+                </strong>
+
+                <small>
+                    Generate and complete bills
+                </small>
+
+            </a>
+
 
             <a
                 href="{% url 'home' %}"
                 class="quick-card"
             >
-                <span>🏠</span>
+
+                <span>
+                    🏠
+                </span>
 
                 <strong>
                     Home
@@ -537,65 +467,13 @@ Waiter Dashboard | IDDS
 
 
             <a
-                href="{% url 'kitchen:dashboard' %}"
-                class="quick-card"
-            >
-                <span>👨‍🍳</span>
-
-                <strong>
-                    Kitchen
-                </strong>
-
-                <small>
-                    View kitchen workflow
-                </small>
-
-            </a>
-
-
-            <a
-                href="{% url 'billing:dashboard' %}"
-                class="quick-card"
-            >
-                <span>💳</span>
-
-                <strong>
-                    Billing
-                </strong>
-
-                <small>
-                    Manage restaurant billing
-                </small>
-
-            </a>
-
-
-            <!-- =================================================
-                 REPORTS
-                 ================================================= -->
-
-            <a
-                href="{% url 'reports:dashboard' %}"
-                class="quick-card"
-            >
-                <span>📊</span>
-
-                <strong>
-                    Reports
-                </strong>
-
-                <small>
-                    View restaurant performance
-                </small>
-
-            </a>
-
-
-            <a
                 href="{% url 'accounts:logout' %}"
                 class="quick-card"
             >
-                <span>↪</span>
+
+                <span>
+                    ↪
+                </span>
 
                 <strong>
                     Logout
@@ -612,5 +490,32 @@ Waiter Dashboard | IDDS
     </div>
 
 </section>
+
+
+<style>
+
+    .request-status {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.35rem 0.7rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 700;
+    }
+
+
+    .status-requested {
+        background: rgba(201, 166, 107, 0.18);
+        color: var(--color-primary);
+    }
+
+
+    .status-accepted {
+        background: rgba(107, 79, 58, 0.12);
+        color: var(--color-primary);
+    }
+
+
+</style>
 
 {% endblock %}
