@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Chef Login | IDDS
+{% endblock %}
+
+
+{% block content %}
+
+<section class="auth-page">
+
+    <div class="auth-shell">
+
+        <!-- =================================================
+             VISUAL SIDE
+             ================================================= -->
+
+        <div class="auth-visual" aria-hidden="true">
+
+            <div class="auth-visual-overlay"></div>
+
+            <div class="auth-visual-content">
+
+                <p class="eyebrow">
+                    IDDS KITCHEN
+                </p>
+
+                <h2>
+                    Ready.<br>
+                    Set.<br>
+                    Cook.
+                </h2>
+
+                <p>
+                    Manage incoming orders,
+                    prepare dishes and mark them ready
+                    for the service team.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             LOGIN
+             ================================================= -->
+
+        <div class="auth-card">
+
+            <div class="auth-icon">
+                👨‍🍳
+            </div>
+
+            <p class="eyebrow">
+                KITCHEN OPERATIONS
+            </p>
+
+            <h1>
+                Chef Login
+            </h1>
+
+            <p class="auth-subtitle">
+                Sign in to manage kitchen orders.
+            </p>
+
+
+            {% if messages %}
+
+                <div class="message-stack">
+
+                    {% for message in messages %}
+
+                        <div class="message {{ message.tags }}">
+                            {{ message }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+
+            <form
+                method="post"
+                class="auth-form"
+            >
+
+                {% csrf_token %}
+
+
+                <div class="form-group">
+
+                    <label for="username">
+                        Username
+                    </label>
+
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        placeholder="Enter chef username"
+                        autocomplete="username"
+                        required
+                        autofocus
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Enter password"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary btn-full"
+                >
+                    Enter Kitchen
+                    <span aria-hidden="true">
+                        →
+                    </span>
+                </button>
+
+            </form>
+
+
+            <div class="auth-footer">
+
+                <span>
+                    IDDS Kitchen
+                </span>
+
+                <span class="auth-note">
+                    Chef access only
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

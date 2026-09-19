@@ -24,11 +24,16 @@ def _parse_quantity(value):
 
 def _staff_required(request):
     """
-    Return True when the current user is an authenticated
-    staff member.
+    Inventory is a management-only area.
+
+    Only the Admin/superuser can view or modify inventory.
+    Chef and Waiter users must not access it.
     """
 
-    return request.user.is_authenticated and request.user.is_staff
+    return (
+        request.user.is_authenticated
+        and request.user.is_superuser
+    )
 
 
 def _dashboard_redirect():

@@ -182,6 +182,184 @@ def _redirect_after_login(user):
 
 
 # ============================================================
+# CHEF LOGIN
+# ============================================================
+
+def chef_login(request):
+    """
+    Dedicated Chef login.
+
+    Only users belonging to the Chef group, or the existing
+    Chef demo-account fallback, can enter the kitchen dashboard.
+    """
+
+    if request.user.is_authenticated:
+
+        role = _staff_role(request.user)
+
+        if role == "chef":
+            return redirect(
+                "kitchen:dashboard"
+            )
+
+        logout(request)
+
+    if request.method == "POST":
+
+        username = (
+            request.POST
+            .get("username", "")
+            .strip()
+        )
+
+        password = request.POST.get(
+            "password",
+            "",
+        )
+
+        user = authenticate(
+            request,
+            username=username,
+            password=password,
+        )
+
+        if user is not None:
+
+            if not user.is_active:
+
+                messages.error(
+                    request,
+                    "This account is inactive.",
+                )
+
+                return render(
+                    request,
+                    "accounts/login.html",
+                    {
+                        "login_role": "chef",
+                    },
+                )
+
+            if _staff_role(user) == "chef":
+
+                login(
+                    request,
+                    user,
+                )
+
+                messages.success(
+                    request,
+                    "Welcome to the IDDS Kitchen Dashboard.",
+                )
+
+                return redirect(
+                    "kitchen:dashboard"
+                )
+
+        messages.error(
+            request,
+            "This account is not registered as a Chef.",
+        )
+
+    return render(
+        request,
+        "accounts/login.html",
+        {
+            "login_role": "chef",
+        },
+    )
+
+
+# ============================================================
+# WAITER LOGIN
+# ============================================================
+
+def waiter_login(request):
+    """
+    Dedicated Waiter login.
+
+    Only users belonging to the Waiter group, or the existing
+    Waiter demo-account fallback, can enter the waiter dashboard.
+    """
+
+    if request.user.is_authenticated:
+
+        role = _staff_role(request.user)
+
+        if role == "waiter":
+            return redirect(
+                "accounts:waiter_dashboard"
+            )
+
+        logout(request)
+
+    if request.method == "POST":
+
+        username = (
+            request.POST
+            .get("username", "")
+            .strip()
+        )
+
+        password = request.POST.get(
+            "password",
+            "",
+        )
+
+        user = authenticate(
+            request,
+            username=username,
+            password=password,
+        )
+
+        if user is not None:
+
+            if not user.is_active:
+
+                messages.error(
+                    request,
+                    "This account is inactive.",
+                )
+
+                return render(
+                    request,
+                    "accounts/login.html",
+                    {
+                        "login_role": "waiter",
+                    },
+                )
+
+            if _staff_role(user) == "waiter":
+
+                login(
+                    request,
+                    user,
+                )
+
+                messages.success(
+                    request,
+                    "Welcome to the IDDS Service Dashboard.",
+                )
+
+                return redirect(
+                    "accounts:waiter_dashboard"
+                )
+
+        messages.error(
+            request,
+            "This account is not registered as a Waiter.",
+        )
+
+    return render(
+        request,
+        "accounts/login.html",
+        {
+            "login_role": "waiter",
+        },
+    )
+
+
+# ============================================================
 # CUSTOMER DASHBOARD
 # ============================================================
 

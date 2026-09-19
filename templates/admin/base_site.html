@@ -1,3 +1,398 @@
-{% extends "admin/base.html" %} {% load static %} {% block title %}IDDS Administration{% endblock %} {% block extrastyle %} {{ block.super }} {% endblock %} {% block branding %}
-☕ IDDS
-{% endblock %} {% block nav-global %} {% endblock %}
+{% extends "admin/base.html" %}
+
+{% load static %}
+
+{% block title %}
+IDDS Administration
+{% endblock %}
+
+{% block branding %}
+
+<div class="idds-brand">
+    <div class="idds-brand-icon">
+        ☕
+    </div>
+
+    <div>
+        <strong>
+            IDDS
+        </strong>
+
+        <span>
+            Integrated Digital Dining System
+        </span>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block extrastyle %}
+
+{{ block.super }}
+
+<style>
+
+    /* =========================================================
+       IDDS ADMIN — GLOBAL
+       ========================================================= */
+
+    :root {
+
+        --idds-dark: #241c18;
+        --idds-dark-soft: #342822;
+        --idds-gold: #c69c6d;
+        --idds-cream: #f7f3ee;
+        --idds-white: #ffffff;
+        --idds-text: #2c2521;
+        --idds-muted: #756b64;
+        --idds-border: #e6ddd4;
+        --idds-green: #58745c;
+        --idds-red: #9b5c52;
+
+    }
+
+
+    body {
+
+        background:
+            linear-gradient(
+                135deg,
+                #f8f5f1 0%,
+                #eee7df 100%
+            );
+
+        color: var(--idds-text);
+
+    }
+
+
+    /* =========================================================
+       TOP HEADER
+       ========================================================= */
+
+    #header {
+
+        background:
+            linear-gradient(
+                135deg,
+                var(--idds-dark),
+                #392c25
+            );
+
+        color: white;
+
+        min-height: 76px;
+
+        display: flex;
+
+        align-items: center;
+
+        padding: 0 30px;
+
+        box-shadow:
+            0 8px 25px rgba(36, 28, 24, 0.18);
+
+    }
+
+
+    #branding {
+
+        flex: 1;
+
+    }
+
+
+    .idds-brand {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 14px;
+
+    }
+
+
+    .idds-brand-icon {
+
+        width: 46px;
+
+        height: 46px;
+
+        border-radius: 14px;
+
+        background:
+            rgba(198, 156, 109, 0.16);
+
+        border:
+            1px solid rgba(198, 156, 109, 0.35);
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        font-size: 22px;
+
+    }
+
+
+    .idds-brand strong {
+
+        display: block;
+
+        color: white;
+
+        font-size: 22px;
+
+        letter-spacing: 0.08em;
+
+    }
+
+
+    .idds-brand span {
+
+        display: block;
+
+        color: #cfc3ba;
+
+        font-size: 11px;
+
+        margin-top: 2px;
+
+        letter-spacing: 0.04em;
+
+    }
+
+
+    #user-tools {
+
+        color: #ded4cd;
+
+        font-size: 12px;
+
+    }
+
+
+    #user-tools a {
+
+        color: white !important;
+
+    }
+
+
+    /* =========================================================
+       MAIN CONTENT
+       ========================================================= */
+
+    #content {
+
+        max-width: 1450px;
+
+        margin: 0 auto;
+
+        padding: 34px 34px 60px;
+
+    }
+
+
+    .breadcrumbs {
+
+        background: transparent !important;
+
+        padding: 0 0 18px !important;
+
+        color: var(--idds-muted) !important;
+
+    }
+
+
+    h1 {
+
+        color: var(--idds-dark);
+
+        font-size: 34px;
+
+        font-weight: 700;
+
+        letter-spacing: -0.02em;
+
+    }
+
+
+    h2,
+    h3 {
+
+        color: var(--idds-dark);
+
+    }
+
+
+    /* =========================================================
+       ADMIN MODULES
+       ========================================================= */
+
+    .module {
+
+        background: var(--idds-white);
+
+        border: 1px solid var(--idds-border);
+
+        border-radius: 16px;
+
+        overflow: hidden;
+
+        box-shadow:
+            0 8px 24px rgba(36, 28, 24, 0.07);
+
+        margin-bottom: 22px;
+
+    }
+
+
+    .module caption,
+    .module h2 {
+
+        background:
+            linear-gradient(
+                135deg,
+                var(--idds-dark),
+                var(--idds-dark-soft)
+            ) !important;
+
+        color: white !important;
+
+        font-size: 13px;
+
+        letter-spacing: 0.08em;
+
+        text-transform: uppercase;
+
+        padding: 13px 16px !important;
+
+    }
+
+
+    .module th {
+
+        color: var(--idds-dark);
+
+    }
+
+
+    .module td {
+
+        border-color: var(--idds-border) !important;
+
+    }
+
+
+    .module tr:nth-child(even) {
+
+        background: #fbf9f7;
+
+    }
+
+
+    .module a {
+
+        color: #765536;
+
+        font-weight: 600;
+
+    }
+
+
+    .module a:hover {
+
+        color: var(--idds-gold);
+
+    }
+
+
+    /* =========================================================
+       BUTTONS
+       ========================================================= */
+
+    .button,
+    input[type="submit"],
+    input[type="button"],
+    .submit-row input,
+    a.button {
+
+        background:
+            linear-gradient(
+                135deg,
+                var(--idds-dark),
+                #45342b
+            ) !important;
+
+        border: none !important;
+
+        border-radius: 9px !important;
+
+        color: white !important;
+
+        padding: 10px 18px !important;
+
+    }
+
+
+    .button:hover,
+    input[type="submit"]:hover,
+    input[type="button"]:hover {
+
+        background:
+            linear-gradient(
+                135deg,
+                #45342b,
+                var(--idds-dark)
+            ) !important;
+
+    }
+
+
+    /* =========================================================
+       FORMS
+       ========================================================= */
+
+    input,
+    textarea,
+    select {
+
+        border-radius: 8px !important;
+
+        border-color: #d8cec5 !important;
+
+    }
+
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+
+        border-color: var(--idds-gold) !important;
+
+        box-shadow:
+            0 0 0 2px rgba(198, 156, 109, 0.16) !important;
+
+    }
+
+
+    /* =========================================================
+       FOOTER
+       ========================================================= */
+
+    #footer {
+
+        color: var(--idds-muted);
+
+        padding: 25px;
+
+    }
+
+</style>
+
+{% endblock %}

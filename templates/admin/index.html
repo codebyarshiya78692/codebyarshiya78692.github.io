@@ -1,0 +1,925 @@
+{% extends "admin/base_site.html" %}
+
+{% load i18n %}
+
+{% block title %}
+IDDS Management Dashboard
+{% endblock %}
+
+
+{% block content %}
+
+<div class="idds-dashboard">
+
+
+    <!-- =====================================================
+         DASHBOARD HEADER
+         ===================================================== -->
+
+    <div class="idds-dashboard-header">
+
+        <div>
+
+            <span class="idds-eyebrow">
+                RESTAURANT MANAGEMENT
+            </span>
+
+            <h1>
+                IDDS Management Dashboard
+            </h1>
+
+            <p>
+                Manage restaurant operations, orders,
+                kitchen workflow, billing, inventory and reports.
+            </p>
+
+        </div>
+
+        <div class="idds-status">
+
+            <span class="idds-status-dot"></span>
+
+            System Online
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         QUICK NAVIGATION
+         ===================================================== -->
+
+    <div class="idds-section-title">
+
+        <span>
+            QUICK ACCESS
+        </span>
+
+        <small>
+            Restaurant operations
+        </small>
+
+    </div>
+
+
+    <div class="idds-quick-grid">
+
+
+        <!-- REPORTS -->
+
+        <a
+            href="/reports/"
+            class="idds-quick-card idds-card-report"
+        >
+
+            <div class="idds-card-icon">
+                📊
+            </div>
+
+            <div>
+
+                <strong>
+                    Reports
+                </strong>
+
+                <span>
+                    Revenue, orders and performance
+                </span>
+
+            </div>
+
+            <b>
+                →
+            </b>
+
+        </a>
+
+
+        <!-- TABLES -->
+
+        <a
+            href="/admin/restaurant/diningtable/"
+            class="idds-quick-card"
+        >
+
+            <div class="idds-card-icon">
+                🪑
+            </div>
+
+            <div>
+
+                <strong>
+                    Tables
+                </strong>
+
+                <span>
+                    Manage restaurant tables
+                </span>
+
+            </div>
+
+            <b>
+                →
+            </b>
+
+        </a>
+
+
+        <!-- ORDERS -->
+
+        <a
+            href="/admin/orders/order/"
+            class="idds-quick-card"
+        >
+
+            <div class="idds-card-icon">
+                🧾
+            </div>
+
+            <div>
+
+                <strong>
+                    Orders
+                </strong>
+
+                <span>
+                    View and manage customer orders
+                </span>
+
+            </div>
+
+            <b>
+                →
+            </b>
+
+        </a>
+
+
+        <!-- KITCHEN -->
+
+        <a
+            href="/kitchen/"
+            class="idds-quick-card"
+        >
+
+            <div class="idds-card-icon">
+                👨‍🍳
+            </div>
+
+            <div>
+
+                <strong>
+                    Kitchen
+                </strong>
+
+                <span>
+                    Monitor kitchen workflow
+                </span>
+
+            </div>
+
+            <b>
+                →
+            </b>
+
+        </a>
+
+
+        <!-- BILLING -->
+
+        <a
+            href="/billing/"
+            class="idds-quick-card"
+        >
+
+            <div class="idds-card-icon">
+                💳
+            </div>
+
+            <div>
+
+                <strong>
+                    Billing
+                </strong>
+
+                <span>
+                    Manage bills and payments
+                </span>
+
+            </div>
+
+            <b>
+                →
+            </b>
+
+        </a>
+
+
+        <!-- INVENTORY -->
+
+        <a
+            href="/admin/inventory/ingredient/"
+            class="idds-quick-card"
+        >
+
+            <div class="idds-card-icon">
+                📦
+            </div>
+
+            <div>
+
+                <strong>
+                    Inventory
+                </strong>
+
+                <span>
+                    Manage ingredients and stock
+                </span>
+
+            </div>
+
+            <b>
+                →
+            </b>
+
+        </a>
+
+
+        <!-- FEEDBACK -->
+
+        <a
+            href="/admin/feedback/feedback/"
+            class="idds-quick-card"
+        >
+
+            <div class="idds-card-icon">
+                ⭐
+            </div>
+
+            <div>
+
+                <strong>
+                    Feedback
+                </strong>
+
+                <span>
+                    Review customer feedback
+                </span>
+
+            </div>
+
+            <b>
+                →
+            </b>
+
+        </a>
+
+
+        <!-- USERS -->
+
+        <a
+            href="/admin/auth/user/"
+            class="idds-quick-card"
+        >
+
+            <div class="idds-card-icon">
+                👥
+            </div>
+
+            <div>
+
+                <strong>
+                    Users
+                </strong>
+
+                <span>
+                    Manage staff accounts
+                </span>
+
+            </div>
+
+            <b>
+                →
+            </b>
+
+        </a>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         DJANGO MODEL MANAGEMENT
+         ===================================================== -->
+
+    <div class="idds-section-title idds-model-title">
+
+        <span>
+            SYSTEM MANAGEMENT
+        </span>
+
+        <small>
+            Detailed database management
+        </small>
+
+    </div>
+
+
+    <div class="idds-model-grid">
+
+        {% if app_list %}
+
+            {% for app in app_list %}
+
+                <section class="idds-model-section">
+
+                    <div class="idds-model-header">
+
+                        <span class="idds-model-icon">
+                            {% if app.app_label == "restaurant" %}
+                                🍽️
+                            {% elif app.app_label == "orders" %}
+                                🧾
+                            {% elif app.app_label == "billing" %}
+                                💳
+                            {% elif app.app_label == "inventory" %}
+                                📦
+                            {% elif app.app_label == "feedback" %}
+                                ⭐
+                            {% elif app.app_label == "auth" %}
+                                👥
+                            {% else %}
+                                ⚙️
+                            {% endif %}
+                        </span>
+
+                        <strong>
+                            {{ app.name }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="idds-model-list">
+
+                        {% for model in app.models %}
+
+                            <div class="idds-model-row">
+
+                                <a
+                                    href="{{ model.admin_url }}"
+                                    class="idds-model-name"
+                                >
+                                    {{ model.name }}
+                                </a>
+
+                                <div class="idds-model-actions">
+
+                                    {% if model.add_url %}
+
+                                        <a
+                                            href="{{ model.add_url }}"
+                                            class="idds-add"
+                                        >
+                                            + Add
+                                        </a>
+
+                                    {% endif %}
+
+                                    {% if model.admin_url %}
+
+                                        <a
+                                            href="{{ model.admin_url }}"
+                                            class="idds-manage"
+                                        >
+                                            Manage
+                                        </a>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                </section>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="idds-empty">
+                No system modules available.
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+</div>
+
+
+<style>
+
+    /* =========================================================
+       IDDS DASHBOARD
+       ========================================================= */
+
+    .idds-dashboard {
+
+        max-width: 1400px;
+
+        margin: 0 auto;
+
+    }
+
+
+    .idds-dashboard-header {
+
+        display: flex;
+
+        justify-content: space-between;
+
+        align-items: flex-end;
+
+        gap: 30px;
+
+        padding: 20px 0 34px;
+
+    }
+
+
+    .idds-eyebrow {
+
+        display: block;
+
+        color: #a77b4d;
+
+        font-size: 11px;
+
+        font-weight: 700;
+
+        letter-spacing: 0.14em;
+
+        margin-bottom: 10px;
+
+    }
+
+
+    .idds-dashboard-header h1 {
+
+        margin: 0;
+
+        font-size: 38px;
+
+        line-height: 1.1;
+
+    }
+
+
+    .idds-dashboard-header p {
+
+        max-width: 650px;
+
+        color: #756b64;
+
+        font-size: 15px;
+
+        line-height: 1.7;
+
+        margin: 12px 0 0;
+
+    }
+
+
+    .idds-status {
+
+        flex-shrink: 0;
+
+        background: white;
+
+        border: 1px solid #e6ddd4;
+
+        border-radius: 30px;
+
+        padding: 10px 16px;
+
+        color: #58745c;
+
+        font-size: 12px;
+
+        font-weight: 700;
+
+        box-shadow:
+            0 5px 15px rgba(36, 28, 24, 0.05);
+
+    }
+
+
+    .idds-status-dot {
+
+        display: inline-block;
+
+        width: 8px;
+
+        height: 8px;
+
+        border-radius: 50%;
+
+        background: #58745c;
+
+        margin-right: 7px;
+
+    }
+
+
+    /* =========================================================
+       SECTION TITLES
+       ========================================================= */
+
+    .idds-section-title {
+
+        display: flex;
+
+        align-items: baseline;
+
+        gap: 12px;
+
+        margin: 8px 0 14px;
+
+    }
+
+
+    .idds-section-title span {
+
+        color: #241c18;
+
+        font-size: 12px;
+
+        font-weight: 800;
+
+        letter-spacing: 0.12em;
+
+    }
+
+
+    .idds-section-title small {
+
+        color: #8b8179;
+
+        font-size: 12px;
+
+    }
+
+
+    .idds-model-title {
+
+        margin-top: 40px;
+
+    }
+
+
+    /* =========================================================
+       QUICK CARDS
+       ========================================================= */
+
+    .idds-quick-grid {
+
+        display: grid;
+
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr));
+
+        gap: 16px;
+
+    }
+
+
+    .idds-quick-card {
+
+        min-height: 118px;
+
+        background: white;
+
+        border: 1px solid #e6ddd4;
+
+        border-radius: 17px;
+
+        padding: 20px;
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 15px;
+
+        text-decoration: none !important;
+
+        color: #241c18 !important;
+
+        box-shadow:
+            0 7px 20px rgba(36, 28, 24, 0.06);
+
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease,
+            border-color 0.2s ease;
+
+    }
+
+
+    .idds-quick-card:hover {
+
+        transform: translateY(-4px);
+
+        border-color: #c69c6d;
+
+        box-shadow:
+            0 14px 30px rgba(36, 28, 24, 0.11);
+
+    }
+
+
+    .idds-card-icon {
+
+        width: 48px;
+
+        height: 48px;
+
+        flex-shrink: 0;
+
+        border-radius: 14px;
+
+        background: #f5eee7;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        font-size: 22px;
+
+    }
+
+
+    .idds-quick-card strong {
+
+        display: block;
+
+        color: #241c18;
+
+        font-size: 15px;
+
+        margin-bottom: 5px;
+
+    }
+
+
+    .idds-quick-card span {
+
+        display: block;
+
+        color: #81766e;
+
+        font-size: 11px;
+
+        line-height: 1.5;
+
+    }
+
+
+    .idds-quick-card b {
+
+        margin-left: auto;
+
+        color: #c69c6d;
+
+        font-size: 20px;
+
+    }
+
+
+    .idds-card-report {
+
+        background:
+            linear-gradient(
+                135deg,
+                #fffaf4,
+                #f7eee4
+            );
+
+        border-color: #d8b993;
+
+    }
+
+
+    /* =========================================================
+       MODEL MANAGEMENT
+       ========================================================= */
+
+    .idds-model-grid {
+
+        display: grid;
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 20px;
+
+    }
+
+
+    .idds-model-section {
+
+        background: white;
+
+        border: 1px solid #e6ddd4;
+
+        border-radius: 16px;
+
+        overflow: hidden;
+
+        box-shadow:
+            0 7px 20px rgba(36, 28, 24, 0.05);
+
+    }
+
+
+    .idds-model-header {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 10px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #2a211c,
+                #3b2d25
+            );
+
+        color: white;
+
+        padding: 15px 18px;
+
+        font-size: 13px;
+
+        text-transform: uppercase;
+
+        letter-spacing: 0.08em;
+
+    }
+
+
+    .idds-model-icon {
+
+        font-size: 18px;
+
+    }
+
+
+    .idds-model-list {
+
+        padding: 6px 16px;
+
+    }
+
+
+    .idds-model-row {
+
+        min-height: 52px;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        gap: 15px;
+
+        border-bottom: 1px solid #eee7e0;
+
+    }
+
+
+    .idds-model-row:last-child {
+
+        border-bottom: none;
+
+    }
+
+
+    .idds-model-name {
+
+        color: #493b32 !important;
+
+        font-size: 13px;
+
+        font-weight: 600;
+
+    }
+
+
+    .idds-model-actions {
+
+        display: flex;
+
+        gap: 12px;
+
+        align-items: center;
+
+    }
+
+
+    .idds-model-actions a {
+
+        font-size: 11px;
+
+        text-decoration: none !important;
+
+    }
+
+
+    .idds-add {
+
+        color: #58745c !important;
+
+    }
+
+
+    .idds-manage {
+
+        color: #a77b4d !important;
+
+    }
+
+
+    .idds-empty {
+
+        background: white;
+
+        border: 1px solid #e6ddd4;
+
+        border-radius: 16px;
+
+        padding: 30px;
+
+        color: #756b64;
+
+    }
+
+
+    /* =========================================================
+       RESPONSIVE
+       ========================================================= */
+
+    @media (max-width: 1100px) {
+
+        .idds-quick-grid {
+
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+
+        }
+
+    }
+
+
+    @media (max-width: 800px) {
+
+        #content {
+
+            padding: 20px;
+
+        }
+
+
+        .idds-dashboard-header {
+
+            align-items: flex-start;
+
+            flex-direction: column;
+
+        }
+
+
+        .idds-quick-grid,
+        .idds-model-grid {
+
+            grid-template-columns: 1fr;
+
+        }
+
+    }
+
+</style>
+
+{% endblock %}

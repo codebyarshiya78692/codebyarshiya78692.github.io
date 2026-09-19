@@ -18,21 +18,21 @@ def _staff_only(request):
     if not request.user.is_authenticated:
         return False
 
-    return request.user.is_staff
+    return request.user.groups.filter(name="Chef").exists()
 
 
 def _check_staff(request):
     """
     Shared staff-access helper.
 
-    Returns True when the current user is staff.
+    Returns True when the current user is a Chef.
     Otherwise sends them back to the home page.
     """
 
     if not _staff_only(request):
         messages.error(
             request,
-            "Kitchen access is restricted to staff members.",
+            "Kitchen access is restricted to Chef staff.",
         )
         return False
 

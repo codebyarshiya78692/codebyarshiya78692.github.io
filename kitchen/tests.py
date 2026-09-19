@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.test import TestCase
 from django.urls import reverse
 
@@ -12,11 +13,27 @@ User = get_user_model()
 class KitchenTests(TestCase):
 
     def setUp(self):
-        self.staff = User.objects.create_user(
-            username="staff",
-            password="StaffPassword123",
+        self.chef_group, _ = Group.objects.get_or_create(
+            name="Chef"
+        )
+
+        self.chef = User.objects.create_user(
+            username="chef",
+            password="ChefPassword123",
             is_staff=True,
         )
+        self.chef.groups.add(self.chef_group)
+
+        self.waiter_group, _ = Group.objects.get_or_create(
+            name="Waiter"
+        )
+
+        self.waiter = User.objects.create_user(
+            username="waiter",
+            password="WaiterPassword123",
+            is_staff=True,
+        )
+        self.waiter.groups.add(self.waiter_group)
 
         self.customer = User.objects.create_user(
             username="customer",
@@ -40,7 +57,7 @@ class KitchenTests(TestCase):
             status="new",
         )
 
-    def test_kitchen_requires_staff(self):
+    def test_customer_cannot_open_kitchen(self):
         self.client.login(
             username="customer",
             password="CustomerPassword123",
@@ -55,10 +72,25 @@ class KitchenTests(TestCase):
             200,
         )
 
-    def test_staff_can_open_kitchen(self):
+    def test_waiter_cannot_open_kitchen(self):
         self.client.login(
-            username="staff",
-            password="StaffPassword123",
+            username="waiter",
+            password="WaiterPassword123",
+        )
+
+        response = self.client.get(
+            reverse("kitchen:dashboard")
+        )
+
+        self.assertNotEqual(
+            response.status_code,
+            200,
+        )
+
+    def test_chef_can_open_kitchen(self):
+        self.client.login(
+            username="chef",
+            password="ChefPassword123",
         )
 
         response = self.client.get(
@@ -70,10 +102,10 @@ class KitchenTests(TestCase):
             200,
         )
 
-    def test_staff_can_accept_order(self):
+    def test_chef_can_accept_order(self):
         self.client.login(
-            username="staff",
-            password="StaffPassword123",
+            username="chef",
+            password="ChefPassword123",
         )
 
         response = self.client.post(
@@ -93,4 +125,29 @@ class KitchenTests(TestCase):
         self.assertEqual(
             self.order.status,
             "accepted",
+        )
+
+    def test_waiter_cannot_accept_order(self):
+        self.client.login(
+            username="waiter",
+            password="WaiterPassword123",
+        )
+
+        response = self.client.post(
+            reverse(
+                "kitchen:accept_order",
+                args=[self.order.id],
+            ),
+        )
+
+        self.assertEqual(
+            response.status_code,
+            302,
+        )
+
+        self.order.refresh_from_db()
+
+        self.assertEqual(
+            self.order.status,
+            "new",
         )

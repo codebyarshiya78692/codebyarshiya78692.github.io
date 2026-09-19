@@ -6,330 +6,736 @@ Reports | IDDS
 
 {% block content %}
 
-<section class="page-shell">
+<style>
+    .reports-page {
+        padding: 40px 0 70px;
+    }
 
-    <div class="page-heading">
+    .reports-hero {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 30px;
+        margin-bottom: 32px;
+        flex-wrap: wrap;
+    }
 
-        <div>
-            <span class="eyebrow">BUSINESS INTELLIGENCE</span>
+    .reports-hero h1 {
+        margin: 6px 0 10px;
+    }
 
-            <h1>Restaurant Reports</h1>
+    .reports-hero p {
+        max-width: 650px;
+        margin: 0;
+    }
 
-            <p>
-                Monitor sales, orders, menu performance,
-                tables and operational activity.
-            </p>
-        </div>
+    .report-periods {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
 
-        <div class="report-filters">
+    .report-periods a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 0 17px;
+        border-radius: 999px;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 14px;
+        transition: 0.2s ease;
+    }
 
-            <a
-                href="?period=today"
-                class="filter-link {% if period == 'today' %}active{% endif %}"
-            >
-                Today
-            </a>
+    .report-periods a:hover,
+    .report-periods a.active {
+        transform: translateY(-1px);
+    }
 
-            <a
-                href="?period=7days"
-                class="filter-link {% if period == '7days' %}active{% endif %}"
-            >
-                7 Days
-            </a>
+    .custom-report-form {
+        margin-top: 18px;
+        padding: 18px;
+        border-radius: 18px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        display: flex;
+        align-items: flex-end;
+        gap: 14px;
+        flex-wrap: wrap;
+    }
 
-            <a
-                href="?period=30days"
-                class="filter-link {% if period == '30days' %}active{% endif %}"
-            >
-                30 Days
-            </a>
+    .custom-report-form label {
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
 
-            <a
-                href="?period=all"
-                class="filter-link {% if period == 'all' %}active{% endif %}"
-            >
-                All Time
-            </a>
+    .custom-report-form input {
+        min-height: 42px;
+        padding: 0 12px;
+        border-radius: 10px;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+    }
 
-        </div>
+    .report-kpis {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 26px;
+    }
 
-    </div>
+    .report-kpi {
+        padding: 24px;
+        border-radius: 20px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        background: rgba(255, 255, 255, 0.7);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.05);
+    }
 
+    .report-kpi-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 700;
+        opacity: 0.7;
+        margin-bottom: 9px;
+    }
 
-    {% if access_denied %}
+    .report-kpi strong {
+        display: block;
+        font-size: 30px;
+        line-height: 1.1;
+        margin-bottom: 8px;
+    }
 
-        <div class="report-card">
-            <h2>Staff access required</h2>
-            <p>
-                Reports are available to authorized restaurant staff.
-            </p>
-        </div>
+    .report-kpi small {
+        opacity: 0.65;
+    }
 
-    {% else %}
+    .report-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 22px;
+    }
 
+    .report-panel {
+        border-radius: 20px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        background: rgba(255, 255, 255, 0.7);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
 
-    <!-- =====================================================
-         KPI CARDS
-    ====================================================== -->
+    .report-panel-wide {
+        grid-column: 1 / -1;
+    }
 
-    <div class="report-grid">
+    .report-panel-header {
+        padding: 22px 24px 16px;
+    }
 
-        <article class="report-stat">
-            <span>Total Revenue</span>
-            <strong>₹{{ total_revenue|floatformat:2 }}</strong>
-            <small>{{ period_label }}</small>
-        </article>
+    .report-panel-header .eyebrow {
+        margin-bottom: 5px;
+    }
 
-        <article class="report-stat">
-            <span>Total Orders</span>
-            <strong>{{ total_orders }}</strong>
-            <small>{{ period_label }}</small>
-        </article>
+    .report-panel-header h2 {
+        margin: 0;
+    }
 
-        <article class="report-stat">
-            <span>Completed Orders</span>
-            <strong>{{ completed_orders }}</strong>
-            <small>Successfully completed</small>
-        </article>
+    .report-table-wrapper {
+        overflow-x: auto;
+    }
 
-        <article class="report-stat">
-            <span>Active Orders</span>
-            <strong>{{ active_orders }}</strong>
-            <small>Currently in service</small>
-        </article>
+    .report-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
 
-        <article class="report-stat">
-            <span>Average Order</span>
-            <strong>₹{{ average_order_value|floatformat:2 }}</strong>
-            <small>Average ticket value</small>
-        </article>
+    .report-table th,
+    .report-table td {
+        padding: 15px 24px;
+        text-align: left;
+        border-top: 1px solid rgba(0, 0, 0, 0.07);
+    }
 
-        <article class="report-stat">
-            <span>Cancelled</span>
-            <strong>{{ cancelled_count }}</strong>
-            <small>Cancelled orders</small>
-        </article>
+    .report-table th {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        opacity: 0.65;
+    }
 
-    </div>
+    .report-table td strong {
+        font-weight: 800;
+    }
 
+    .status-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        padding: 0 24px 24px;
+    }
 
-    <!-- =====================================================
-         TOP MENU ITEMS
-    ====================================================== -->
+    .status-card {
+        padding: 18px;
+        border-radius: 15px;
+        border: 1px solid rgba(0, 0, 0, 0.07);
+    }
 
-    <div class="report-section">
+    .status-card span {
+        display: block;
+        font-size: 13px;
+        opacity: 0.7;
+        margin-bottom: 7px;
+    }
 
-        <div class="section-heading">
+    .status-card strong {
+        font-size: 25px;
+    }
+
+    .session-summary {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+        padding: 0 24px 24px;
+    }
+
+    .session-box {
+        padding: 20px;
+        border-radius: 16px;
+        border: 1px solid rgba(0, 0, 0, 0.07);
+    }
+
+    .session-box span {
+        display: block;
+        opacity: 0.7;
+        margin-bottom: 7px;
+    }
+
+    .session-box strong {
+        font-size: 28px;
+    }
+
+    .report-empty {
+        padding: 24px;
+        opacity: 0.65;
+    }
+
+    @media (max-width: 1000px) {
+        .report-kpis {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .report-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .report-panel-wide {
+            grid-column: auto;
+        }
+    }
+
+    @media (max-width: 650px) {
+        .report-kpis {
+            grid-template-columns: 1fr;
+        }
+
+        .status-grid,
+        .session-summary {
+            grid-template-columns: 1fr;
+        }
+
+        .reports-page {
+            padding-top: 25px;
+        }
+    }
+</style>
+
+<section class="reports-page">
+    <div class="container">
+
+        <div class="reports-hero reveal">
             <div>
-                <span class="eyebrow">MENU PERFORMANCE</span>
-                <h2>Top Selling Items</h2>
+                <p class="eyebrow">IDDS BUSINESS INTELLIGENCE</p>
+
+                <h1>📊 Reports</h1>
+
+                <p>
+                    View restaurant performance, revenue, orders,
+                    popular menu items, table usage and dining activity.
+                </p>
+            </div>
+
+            <div class="report-periods">
+
+                <a
+                    href="?period=today"
+                    class="{% if period == 'today' %}active{% endif %}"
+                >
+                    Today
+                </a>
+
+                <a
+                    href="?period=week"
+                    class="{% if period == 'week' %}active{% endif %}"
+                >
+                    This Week
+                </a>
+
+                <a
+                    href="?period=month"
+                    class="{% if period == 'month' %}active{% endif %}"
+                >
+                    This Month
+                </a>
+
+                <a
+                    href="?period=custom"
+                    class="{% if period == 'custom' %}active{% endif %}"
+                >
+                    Custom
+                </a>
+
             </div>
         </div>
 
-        <div class="report-table-wrapper">
 
-            <table class="report-table">
+        {% if period == "custom" %}
+        <form method="get" class="custom-report-form">
 
-                <thead>
-                    <tr>
-                        <th>Item</th>
-                        <th>Quantity Sold</th>
-                        <th>Revenue</th>
-                    </tr>
-                </thead>
+            <input type="hidden" name="period" value="custom">
 
-                <tbody>
-
-                    {% for item in top_items %}
-
-                    <tr>
-                        <td>
-                            <strong>{{ item.item_name }}</strong>
-                        </td>
-
-                        <td>
-                            {{ item.quantity_sold }}
-                        </td>
-
-                        <td>
-                            ₹{{ item.revenue|floatformat:2 }}
-                        </td>
-                    </tr>
-
-                    {% empty %}
-
-                    <tr>
-                        <td colspan="3">
-                            No sales data available for this period.
-                        </td>
-                    </tr>
-
-                    {% endfor %}
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
-
-    <!-- =====================================================
-         ORDER STATUS
-    ====================================================== -->
-
-    <div class="report-section">
-
-        <div class="section-heading">
             <div>
-                <span class="eyebrow">OPERATIONS</span>
-                <h2>Order Status</h2>
+                <label for="start_date">From Date</label>
+                <input
+                    type="date"
+                    id="start_date"
+                    name="start_date"
+                    value="{{ start_date|date:'Y-m-d' }}"
+                    required
+                >
+            </div>
+
+            <div>
+                <label for="end_date">To Date</label>
+                <input
+                    type="date"
+                    id="end_date"
+                    name="end_date"
+                    value="{{ end_date|date:'Y-m-d' }}"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Apply Report
+            </button>
+
+        </form>
+        {% endif %}
+
+
+        {% if access_denied %}
+
+        <div class="report-panel">
+            <div class="report-empty">
+                <h2>Staff access required</h2>
+                <p>
+                    Reports are available to authorized restaurant staff.
+                </p>
             </div>
         </div>
 
-        <div class="status-grid">
+        {% else %}
 
-            {% for status in status_breakdown %}
 
-            <div class="status-card">
+        <!-- =====================================================
+             KPI SUMMARY
+        ====================================================== -->
 
-                <span>
-                    {{ status.status|title }}
+        <div class="report-kpis">
+
+            <article class="report-kpi">
+                <span class="report-kpi-label">
+                    Revenue
                 </span>
 
                 <strong>
-                    {{ status.count }}
+                    ₹{{ total_revenue|floatformat:2 }}
                 </strong>
 
-            </div>
+                <small>
+                    {{ period_label }}
+                </small>
+            </article>
 
-            {% empty %}
 
-            <div class="report-card">
-                No order activity found.
-            </div>
+            <article class="report-kpi">
+                <span class="report-kpi-label">
+                    Orders
+                </span>
 
-            {% endfor %}
+                <strong>
+                    {{ total_orders }}
+                </strong>
+
+                <small>
+                    Orders placed
+                </small>
+            </article>
+
+
+            <article class="report-kpi">
+                <span class="report-kpi-label">
+                    Completed Sessions
+                </span>
+
+                <strong>
+                    {{ completed_sessions }}
+                </strong>
+
+                <small>
+                    {{ period_label }}
+                </small>
+            </article>
+
+
+            <article class="report-kpi">
+                <span class="report-kpi-label">
+                    Average Order Value
+                </span>
+
+                <strong>
+                    ₹{{ average_order_value|floatformat:2 }}
+                </strong>
+
+                <small>
+                    Average ticket value
+                </small>
+            </article>
 
         </div>
 
-    </div>
+
+        <!-- =====================================================
+             MAIN REPORTS
+        ====================================================== -->
+
+        <div class="report-layout">
 
 
-    <!-- =====================================================
-         TABLE ACTIVITY
-    ====================================================== -->
+            <!-- REVENUE -->
 
-    <div class="report-section">
+            <section class="report-panel">
+                <div class="report-panel-header">
+                    <p class="eyebrow">SALES</p>
+                    <h2>Revenue</h2>
+                </div>
 
-        <div class="section-heading">
-            <div>
-                <span class="eyebrow">TABLE ACTIVITY</span>
-                <h2>Most Active Tables</h2>
-            </div>
-        </div>
+                <div class="report-kpi" style="margin: 0 24px 24px;">
+                    <span class="report-kpi-label">
+                        {{ period_label }}
+                    </span>
 
-        <div class="report-table-wrapper">
+                    <strong>
+                        ₹{{ total_revenue|floatformat:2 }}
+                    </strong>
 
-            <table class="report-table">
+                    <small>
+                        Based on non-cancelled orders
+                    </small>
+                </div>
+            </section>
 
-                <thead>
-                    <tr>
-                        <th>Table</th>
-                        <th>Sessions</th>
-                        <th>Orders</th>
-                    </tr>
-                </thead>
 
-                <tbody>
+            <!-- ORDERS -->
 
-                    {% for table in table_usage %}
+            <section class="report-panel">
+                <div class="report-panel-header">
+                    <p class="eyebrow">ORDER ACTIVITY</p>
+                    <h2>Orders</h2>
+                </div>
 
-                    <tr>
-                        <td>
-                            Table {{ table.table__table_number }}
-                        </td>
+                <div class="report-kpi" style="margin: 0 24px 24px;">
+                    <span class="report-kpi-label">
+                        Total Orders
+                    </span>
 
-                        <td>
-                            {{ table.session_count }}
-                        </td>
+                    <strong>
+                        {{ total_orders }}
+                    </strong>
 
-                        <td>
-                            {{ table.order_count }}
-                        </td>
-                    </tr>
+                    <small>
+                        {{ completed_orders }} completed ·
+                        {{ active_orders }} active
+                    </small>
+                </div>
+            </section>
+
+
+            <!-- POPULAR MENU ITEMS -->
+
+            <section class="report-panel report-panel-wide">
+
+                <div class="report-panel-header">
+                    <p class="eyebrow">MENU PERFORMANCE</p>
+                    <h2>Popular Menu Items</h2>
+                </div>
+
+                <div class="report-table-wrapper">
+
+                    <table class="report-table">
+
+                        <thead>
+                            <tr>
+                                <th>Menu Item</th>
+                                <th>Quantity Sold</th>
+                                <th>Revenue</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for item in top_items %}
+
+                            <tr>
+                                <td>
+                                    <strong>
+                                        {{ item.item_name }}
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    {{ item.quantity_sold }} sold
+                                </td>
+
+                                <td>
+                                    ₹{{ item.revenue|floatformat:2 }}
+                                </td>
+                            </tr>
+
+                            {% empty %}
+
+                            <tr>
+                                <td colspan="3">
+                                    No sales data available for this period.
+                                </td>
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+
+            <!-- TABLE USAGE -->
+
+            <section class="report-panel">
+
+                <div class="report-panel-header">
+                    <p class="eyebrow">RESTAURANT OPERATIONS</p>
+                    <h2>Table Usage</h2>
+                </div>
+
+                <div class="report-table-wrapper">
+
+                    <table class="report-table">
+
+                        <thead>
+                            <tr>
+                                <th>Table</th>
+                                <th>Sessions</th>
+                                <th>Orders</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for table in table_usage %}
+
+                            <tr>
+                                <td>
+                                    <strong>
+                                        Table {{ table.table__table_number }}
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    {{ table.session_count }}
+                                </td>
+
+                                <td>
+                                    {{ table.order_count }}
+                                </td>
+                            </tr>
+
+                            {% empty %}
+
+                            <tr>
+                                <td colspan="3">
+                                    No table activity available.
+                                </td>
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+
+            <!-- DINING SESSIONS -->
+
+            <section class="report-panel">
+
+                <div class="report-panel-header">
+                    <p class="eyebrow">DINING ACTIVITY</p>
+                    <h2>Dining Sessions</h2>
+                </div>
+
+                <div class="session-summary">
+
+                    <div class="session-box">
+                        <span>Completed</span>
+                        <strong>{{ completed_sessions }}</strong>
+                    </div>
+
+                    <div class="session-box">
+                        <span>Active Now</span>
+                        <strong>{{ active_sessions }}</strong>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ORDER STATUS -->
+
+            <section class="report-panel report-panel-wide">
+
+                <div class="report-panel-header">
+                    <p class="eyebrow">OPERATIONS</p>
+                    <h2>Order Status</h2>
+                </div>
+
+                <div class="status-grid">
+
+                    {% for status in status_breakdown %}
+
+                    <div class="status-card">
+                        <span>
+                            {{ status.status|title }}
+                        </span>
+
+                        <strong>
+                            {{ status.count }}
+                        </strong>
+                    </div>
 
                     {% empty %}
 
-                    <tr>
-                        <td colspan="3">
-                            No table activity available.
-                        </td>
-                    </tr>
+                    <div class="report-empty">
+                        No order activity found.
+                    </div>
 
                     {% endfor %}
 
-                </tbody>
+                </div>
 
-            </table>
+            </section>
+
+
+            <!-- RESTAURANT SNAPSHOT -->
+
+            <section class="report-panel report-panel-wide">
+
+                <div class="report-panel-header">
+                    <p class="eyebrow">RESTAURANT SNAPSHOT</p>
+                    <h2>Current Operations</h2>
+                </div>
+
+                <div class="report-kpis"
+                     style="padding: 0 24px 24px; margin-bottom: 0;">
+
+                    <article class="report-kpi">
+                        <span class="report-kpi-label">
+                            Total Tables
+                        </span>
+
+                        <strong>
+                            {{ total_tables }}
+                        </strong>
+
+                        <small>
+                            {{ available_tables }} available
+                        </small>
+                    </article>
+
+
+                    <article class="report-kpi">
+                        <span class="report-kpi-label">
+                            Tables In Use
+                        </span>
+
+                        <strong>
+                            {{ occupied_tables }}
+                        </strong>
+
+                        <small>
+                            Currently occupied
+                        </small>
+                    </article>
+
+
+                    <article class="report-kpi">
+                        <span class="report-kpi-label">
+                            Menu Items
+                        </span>
+
+                        <strong>
+                            {{ total_menu_items }}
+                        </strong>
+
+                        <small>
+                            {{ available_menu_items }} available
+                        </small>
+                    </article>
+
+
+                    <article class="report-kpi">
+                        <span class="report-kpi-label">
+                            Unavailable Items
+                        </span>
+
+                        <strong>
+                            {{ unavailable_menu_items }}
+                        </strong>
+
+                        <small>
+                            Currently unavailable
+                        </small>
+                    </article>
+
+                </div>
+
+            </section>
 
         </div>
+
+        {% endif %}
 
     </div>
-
-
-    <!-- =====================================================
-         RESTAURANT SNAPSHOT
-    ====================================================== -->
-
-    <div class="report-section">
-
-        <div class="section-heading">
-            <div>
-                <span class="eyebrow">RESTAURANT SNAPSHOT</span>
-                <h2>Current Operations</h2>
-            </div>
-        </div>
-
-        <div class="report-grid">
-
-            <article class="report-stat">
-                <span>Total Tables</span>
-                <strong>{{ total_tables }}</strong>
-                <small>{{ available_tables }} available</small>
-            </article>
-
-            <article class="report-stat">
-                <span>Tables In Use</span>
-                <strong>{{ occupied_tables }}</strong>
-                <small>Currently occupied / processing</small>
-            </article>
-
-            <article class="report-stat">
-                <span>Menu Items</span>
-                <strong>{{ total_menu_items }}</strong>
-                <small>{{ available_menu_items }} available</small>
-            </article>
-
-            <article class="report-stat">
-                <span>Unavailable Items</span>
-                <strong>{{ unavailable_menu_items }}</strong>
-                <small>Currently hidden from ordering</small>
-            </article>
-
-            <article class="report-stat">
-                <span>Dining Sessions</span>
-                <strong>{{ total_sessions }}</strong>
-                <small>{{ period_label }}</small>
-            </article>
-
-        </div>
-
-    </div>
-
-    {% endif %}
-
 </section>
 
 {% endblock %}

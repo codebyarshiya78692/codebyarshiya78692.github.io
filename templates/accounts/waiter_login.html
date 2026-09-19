@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Waiter Login | IDDS
+{% endblock %}
+
+
+{% block content %}
+
+<section class="auth-page">
+
+    <div class="auth-shell">
+
+        <!-- =================================================
+             VISUAL SIDE
+             ================================================= -->
+
+        <div class="auth-visual" aria-hidden="true">
+
+            <div class="auth-visual-overlay"></div>
+
+            <div class="auth-visual-content">
+
+                <p class="eyebrow">
+                    IDDS SERVICE
+                </p>
+
+                <h2>
+                    Great food.<br>
+                    Great service.
+                </h2>
+
+                <p>
+                    Serve ready orders,
+                    help customers and
+                    handle the final checkout.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             LOGIN
+             ================================================= -->
+
+        <div class="auth-card">
+
+            <div class="auth-icon">
+                🧑‍🍽️
+            </div>
+
+            <p class="eyebrow">
+                SERVICE OPERATIONS
+            </p>
+
+            <h1>
+                Waiter Login
+            </h1>
+
+            <p class="auth-subtitle">
+                Sign in to manage tables, service and billing.
+            </p>
+
+
+            {% if messages %}
+
+                <div class="message-stack">
+
+                    {% for message in messages %}
+
+                        <div class="message {{ message.tags }}">
+                            {{ message }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+
+            <form
+                method="post"
+                class="auth-form"
+            >
+
+                {% csrf_token %}
+
+
+                <div class="form-group">
+
+                    <label for="username">
+                        Username
+                    </label>
+
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        placeholder="Enter waiter username"
+                        autocomplete="username"
+                        required
+                        autofocus
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Enter password"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary btn-full"
+                >
+                    Enter Service Dashboard
+                    <span aria-hidden="true">
+                        →
+                    </span>
+                </button>
+
+            </form>
+
+
+            <div class="auth-footer">
+
+                <span>
+                    IDDS Service
+                </span>
+
+                <span class="auth-note">
+                    Waiter access only
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

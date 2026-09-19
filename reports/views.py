@@ -1,10 +1,11 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 from decimal import Decimal
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, DecimalField, ExpressionWrapper, F, Sum
 from django.db.models.functions import Coalesce
 from django.shortcuts import render
+from django.utils import timezone
 
 from orders.models import DiningSession, Order, OrderItem
 from restaurant.models import DiningTable, MenuItem
@@ -13,16 +14,13 @@ from restaurant.models import DiningTable, MenuItem
 @login_required
 def dashboard(request):
     """
-    Main ERP reporting dashboard.
+    Main IDDS reporting dashboard.
 
-    Reports are calculated directly from the operational database:
+    Reports are calculated directly from operational data:
     DiningSession -> Order -> OrderItem.
-
-    No duplicate reporting data is stored, which keeps the reporting
-    module scalable as the restaurant grows.
     """
 
-    if not request.user.is_staff:
+    if not request.user.is_authenticated or not request.user.is_superuser:
         return render(
             request,
             "reports/dashboard.html",
@@ -31,46 +29,78 @@ def dashboard(request):
             },
         )
 
-    today = datetime.now().date()
+    today = timezone.localdate()
+
+    # =========================================================
+    # REPORT PERIOD
+    # =========================================================
 
     period = request.GET.get("period", "today")
 
-    if period == "7days":
-        start_date = today - timedelta(days=6)
-        period_label = "Last 7 Days"
+    start_date = today
+    end_date = today
+    period_label = "Today"
 
-    elif period == "30days":
-        start_date = today - timedelta(days=29)
-        period_label = "Last 30 Days"
+    if period == "week":
+        # Monday through today
+        start_date = today - timedelta(days=today.weekday())
+        period_label = "This Week"
 
-    elif period == "all":
-        start_date = None
-        period_label = "All Time"
+    elif period == "month":
+        start_date = today.replace(day=1)
+        period_label = "This Month"
 
-    else:
-        start_date = today
-        period_label = "Today"
+    elif period == "custom":
+        custom_start = request.GET.get("start_date")
+        custom_end = request.GET.get("end_date")
 
-    orders = Order.objects.exclude(
-        status="cancelled"
-    ).select_related(
-        "session",
-        "session__table",
+        if custom_start and custom_end:
+            try:
+                from datetime import date
+
+                parsed_start = date.fromisoformat(custom_start)
+                parsed_end = date.fromisoformat(custom_end)
+
+                if parsed_start <= parsed_end:
+                    start_date = parsed_start
+                    end_date = parsed_end
+                    period_label = (
+                        f"{start_date.strftime('%d %b %Y')} "
+                        f"— {end_date.strftime('%d %b %Y')}"
+                    )
+                else:
+                    period = "today"
+                    period_label = "Today"
+
+            except ValueError:
+                period = "today"
+                period_label = "Today"
+
+    # =========================================================
+    # ORDERS
+    # =========================================================
+
+    orders = (
+        Order.objects
+        .exclude(status="cancelled")
+        .select_related(
+            "session",
+            "session__table",
+        )
     )
 
-    if start_date:
-        orders = orders.filter(
-            created_at__date__gte=start_date,
-            created_at__date__lte=today,
-        )
+    orders = orders.filter(
+        created_at__date__gte=start_date,
+        created_at__date__lte=end_date,
+    )
+
+    # =========================================================
+    # ORDER ITEMS / REVENUE
+    # =========================================================
 
     order_items = OrderItem.objects.filter(
         order__in=orders
     )
-
-    # ---------------------------------------------------------
-    # SALES
-    # ---------------------------------------------------------
 
     item_revenue_expression = ExpressionWrapper(
         F("unit_price") * F("quantity"),
@@ -103,21 +133,23 @@ def dashboard(request):
         ]
     ).count()
 
-    cancelled_orders = Order.objects.filter(
-        status="cancelled"
+    # =========================================================
+    # CANCELLED ORDERS
+    # =========================================================
+
+    cancelled_count = (
+        Order.objects
+        .filter(status="cancelled")
+        .filter(
+            created_at__date__gte=start_date,
+            created_at__date__lte=end_date,
+        )
+        .count()
     )
 
-    if start_date:
-        cancelled_orders = cancelled_orders.filter(
-            created_at__date__gte=start_date,
-            created_at__date__lte=today,
-        )
-
-    cancelled_count = cancelled_orders.count()
-
-    # ---------------------------------------------------------
+    # =========================================================
     # AVERAGE ORDER VALUE
-    # ---------------------------------------------------------
+    # =========================================================
 
     if total_orders:
         average_order_value = (
@@ -126,9 +158,9 @@ def dashboard(request):
     else:
         average_order_value = Decimal("0.00")
 
-    # ---------------------------------------------------------
+    # =========================================================
     # TOP SELLING MENU ITEMS
-    # ---------------------------------------------------------
+    # =========================================================
 
     top_items = (
         order_items
@@ -152,9 +184,9 @@ def dashboard(request):
         )[:10]
     )
 
-    # ---------------------------------------------------------
-    # ORDER STATUS BREAKDOWN
-    # ---------------------------------------------------------
+    # =========================================================
+    # ORDER STATUS
+    # =========================================================
 
     status_breakdown = (
         orders
@@ -165,9 +197,9 @@ def dashboard(request):
         .order_by("-count")
     )
 
-    # ---------------------------------------------------------
+    # =========================================================
     # TABLE USAGE
-    # ---------------------------------------------------------
+    # =========================================================
 
     table_usage = (
         DiningSession.objects
@@ -193,22 +225,32 @@ def dashboard(request):
         )[:10]
     )
 
-    # ---------------------------------------------------------
-    # CUSTOMER SESSIONS
-    # ---------------------------------------------------------
+    # =========================================================
+    # DINING SESSIONS FOR SELECTED PERIOD
+    # =========================================================
 
-    total_sessions = (
-        DiningSession.objects
-        .filter(
-            orders__in=orders
-        )
-        .distinct()
-        .count()
+    period_sessions = DiningSession.objects.filter(
+        started_at__date__gte=start_date,
+        started_at__date__lte=end_date,
     )
 
-    # ---------------------------------------------------------
+    total_sessions = period_sessions.count()
+
+    completed_sessions = period_sessions.filter(
+        status="completed"
+    ).count()
+
+    # =========================================================
+    # CURRENT ACTIVE SESSIONS
+    # =========================================================
+
+    active_sessions = DiningSession.objects.filter(
+        status="active"
+    ).count()
+
+    # =========================================================
     # MENU STATISTICS
-    # ---------------------------------------------------------
+    # =========================================================
 
     total_menu_items = MenuItem.objects.count()
 
@@ -220,6 +262,10 @@ def dashboard(request):
         is_available=False
     ).count()
 
+    # =========================================================
+    # TABLE STATISTICS
+    # =========================================================
+
     total_tables = DiningTable.objects.count()
 
     available_tables = DiningTable.objects.filter(
@@ -230,10 +276,16 @@ def dashboard(request):
         status="available"
     ).count()
 
+    # =========================================================
+    # CONTEXT
+    # =========================================================
+
     context = {
         "period": period,
         "period_label": period_label,
+
         "start_date": start_date,
+        "end_date": end_date,
         "today": today,
 
         "total_revenue": total_revenue,
@@ -248,6 +300,8 @@ def dashboard(request):
         "table_usage": table_usage,
 
         "total_sessions": total_sessions,
+        "completed_sessions": completed_sessions,
+        "active_sessions": active_sessions,
 
         "total_menu_items": total_menu_items,
         "available_menu_items": available_menu_items,

@@ -17,7 +17,18 @@ SERVICE_CHARGE_RATE = Decimal("0.10")
 
 
 def _staff_only(request):
-    return request.user.is_authenticated and request.user.is_staff
+    """
+    Billing is available to Admin and Waiter users.
+    Chef and Customer users cannot access billing.
+    """
+
+    if not request.user.is_authenticated:
+        return False
+
+    return (
+        request.user.is_superuser
+        or request.user.groups.filter(name="Waiter").exists()
+    )
 
 
 @login_required
