@@ -1,77 +1,73 @@
-from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Group, User
+from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
-    help = "Create IDDS Chef and Waiter staff roles and demo accounts."
 
+    help = (
+        "Create IDDS Chef and Waiter groups and reset "
+        "the standard demo staff accounts."
+    )
 
-    def handle(self, *args, **options):
-
-        # =====================================================
-        # GROUPS
-        # =====================================================
+    def handle(
+        self,
+        *args,
+        **options,
+    ):
 
         chef_group, _ = Group.objects.get_or_create(
-            name="Chef"
+            name="Chef",
         )
 
         waiter_group, _ = Group.objects.get_or_create(
-            name="Waiter"
+            name="Waiter",
         )
 
-
         # =====================================================
-        # CHEF ACCOUNT
+        # CHEF
         # =====================================================
 
         chef, chef_created = User.objects.get_or_create(
-            username="chef"
+            username="chef",
         )
 
-        if chef_created:
+        chef.set_password(
+            "Chef@12345",
+        )
 
-            chef.set_password(
-                "Chef@12345"
-            )
+        chef.first_name = "Kitchen"
+        chef.last_name = "Chef"
+        chef.is_staff = True
+        chef.is_active = True
 
-            chef.first_name = "Kitchen"
-            chef.last_name = "Chef"
-            chef.is_staff = True
-            chef.is_active = True
-
-            chef.save()
+        chef.save()
 
         chef.groups.add(
-            chef_group
+            chef_group,
         )
 
-
         # =====================================================
-        # WAITER ACCOUNT
+        # WAITER
         # =====================================================
 
         waiter, waiter_created = User.objects.get_or_create(
-            username="waiter"
+            username="waiter",
         )
 
-        if waiter_created:
+        waiter.set_password(
+            "Waiter@12345",
+        )
 
-            waiter.set_password(
-                "Waiter@12345"
-            )
+        waiter.first_name = "Restaurant"
+        waiter.last_name = "Waiter"
+        waiter.is_staff = True
+        waiter.is_active = True
 
-            waiter.first_name = "Restaurant"
-            waiter.last_name = "Waiter"
-            waiter.is_staff = True
-            waiter.is_active = True
-
-            waiter.save()
+        waiter.save()
 
         waiter.groups.add(
-            waiter_group
+            waiter_group,
         )
-
 
         # =====================================================
         # OUTPUT
@@ -81,8 +77,18 @@ class Command(BaseCommand):
 
         self.stdout.write(
             self.style.SUCCESS(
-                "IDDS STAFF ROLES READY"
+                "IDDS STAFF ROLES READY",
             )
+        )
+
+        self.stdout.write("")
+
+        self.stdout.write(
+            "Unified staff login:"
+        )
+
+        self.stdout.write(
+            "  URL: /accounts/login/"
         )
 
         self.stdout.write("")
@@ -100,7 +106,7 @@ class Command(BaseCommand):
         )
 
         self.stdout.write(
-            "  URL: /accounts/chef/login/"
+            "  Redirect: Kitchen Dashboard"
         )
 
         self.stdout.write("")
@@ -118,22 +124,28 @@ class Command(BaseCommand):
         )
 
         self.stdout.write(
-            "  URL: /accounts/waiter/login/"
+            "  Redirect: Waiter Dashboard"
         )
 
         self.stdout.write("")
 
         if not chef_created:
+
             self.stdout.write(
                 self.style.WARNING(
-                    "Existing 'chef' account was kept; its password was not changed."
+                    "Existing 'chef' account found; "
+                    "its password has been reset to "
+                    "Chef@12345.",
                 )
             )
 
         if not waiter_created:
+
             self.stdout.write(
                 self.style.WARNING(
-                    "Existing 'waiter' account was kept; its password was not changed."
+                    "Existing 'waiter' account found; "
+                    "its password has been reset to "
+                    "Waiter@12345.",
                 )
             )
 

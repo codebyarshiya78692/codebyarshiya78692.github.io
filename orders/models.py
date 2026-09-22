@@ -35,7 +35,9 @@ class DiningSession(models.Model):
         default="active",
     )
 
-    started_at = models.DateTimeField(auto_now_add=True)
+    started_at = models.DateTimeField(
+        auto_now_add=True,
+    )
 
     completed_at = models.DateTimeField(
         null=True,
@@ -48,10 +50,14 @@ class DiningSession(models.Model):
 
     @property
     def total_amount(self):
-        return sum(order.total_amount for order in self.orders.all())
+        return sum(
+            order.total_amount
+            for order in self.orders.all()
+        )
 
 
 class Order(models.Model):
+
     STATUS_CHOICES = [
         ("new", "New"),
         ("accepted", "Accepted"),
@@ -74,13 +80,36 @@ class Order(models.Model):
         default="new",
     )
 
+    # ---------------------------------------------------------
+    # CHEF ASSIGNMENT
+    # ---------------------------------------------------------
+    #
+    # All chefs can see a NEW order.
+    # Once one chef accepts it, the order is assigned to
+    # that chef and disappears from the other chefs' work queue.
+    #
+    assigned_chef = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="assigned_orders",
+        limit_choices_to={
+            "groups__name": "Chef",
+        },
+    )
+
     special_instructions = models.TextField(
         blank=True,
     )
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
 
-    updated_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
 
     accepted_at = models.DateTimeField(
         null=True,
@@ -108,14 +137,21 @@ class Order(models.Model):
     )
 
     def __str__(self):
-        return f"Order #{self.id} - Table {self.session.table.table_number}"
+        return (
+            f"Order #{self.id} - "
+            f"Table {self.session.table.table_number}"
+        )
 
     @property
     def total_amount(self):
-        return sum(item.total_price for item in self.items.all())
+        return sum(
+            item.total_price
+            for item in self.items.all()
+        )
 
 
 class OrderItem(models.Model):
+
     order = models.ForeignKey(
         Order,
         on_delete=models.CASCADE,
@@ -147,26 +183,34 @@ class OrderItem(models.Model):
     )
 
     def save(self, *args, **kwargs):
+
         if not self.item_name:
             self.item_name = self.menu_item.name
 
         if self.unit_price is None:
             self.unit_price = self.menu_item.price
 
-        super().save(*args, **kwargs)
+        super().save(
+            *args,
+            **kwargs,
+        )
 
     @property
     def total_price(self):
         return self.unit_price * self.quantity
 
     def __str__(self):
-        return f"{self.item_name} x {self.quantity}"
+        return (
+            f"{self.item_name} x {self.quantity}"
+        )
 
 
 class ServiceRequest(models.Model):
+
     REQUEST_TYPES = [
         ("water", "Water"),
         ("cutlery", "Cutlery"),
+        ("tissue", "Tissues"),
         ("assistance", "Assistance"),
         ("bill", "Bill"),
         ("other", "Other"),
@@ -198,6 +242,21 @@ class ServiceRequest(models.Model):
         max_length=20,
         choices=STATUS_CHOICES,
         default="requested",
+    )
+
+    # ---------------------------------------------------------
+    # WAITER ASSIGNMENT
+    # ---------------------------------------------------------
+
+    assigned_waiter = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="assigned_service_requests",
+        limit_choices_to={
+            "groups__name": "Waiter",
+        },
     )
 
     requested_at = models.DateTimeField(

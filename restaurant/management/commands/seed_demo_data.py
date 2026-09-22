@@ -3,12 +3,13 @@ from pathlib import Path
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.db import transaction
 
 from restaurant.models import DiningTable, MenuCategory, MenuItem
 
 
 class Command(BaseCommand):
-    help = "Create the standard IDDS restaurant tables and international menu data."
+    help = "Create and synchronize the standard IDDS restaurant demo data."
 
     TABLES = [
         {"table_number": 1, "capacity": 2},
@@ -588,11 +589,16 @@ class Command(BaseCommand):
         },
     ]
 
+    @transaction.atomic
     def handle(self, *args, **options):
         created_tables = 0
+        updated_tables = 0
         created_categories = 0
+        updated_categories = 0
         created_items = 0
         updated_items = 0
+        deactivated_duplicates = 0
+        deactivated_old_items = 0
         missing_images = []
 
         # ========================================================
@@ -610,9 +616,16 @@ class Command(BaseCommand):
 
             if created:
                 created_tables += 1
-            elif table.capacity != table_data["capacity"]:
-                table.capacity = table_data["capacity"]
-                table.save(update_fields=["capacity"])
+            else:
+                changed = False
+
+                if table.capacity != table_data["capacity"]:
+                    table.capacity = table_data["capacity"]
+                    changed = True
+
+                if changed:
+                    table.save(update_fields=["capacity"])
+                    updated_tables += 1
 
         # ========================================================
         # CATEGORIES
@@ -630,9 +643,11 @@ class Command(BaseCommand):
 
             if created:
                 created_categories += 1
-            elif category.description != category_data["description"]:
-                category.description = category_data["description"]
-                category.save(update_fields=["description"])
+            else:
+                if category.description != category_data["description"]:
+                    category.description = category_data["description"]
+                    category.save(update_fields=["description"])
+                    updated_categories += 1
 
             categories[category.name] = category
 
@@ -641,73 +656,149 @@ class Command(BaseCommand):
         # ========================================================
 
         valid_item_names = {
-            item_data["name"] for item_data in self.MENU_ITEMS
+            item_data["name"]
+            for item_data in self.MENU_ITEMS
         }
 
-        # Hide old demo menu items so the new international menu
-        # becomes the active menu without deleting records that may
-        # already be referenced by orders.
-        MenuItem.objects.exclude(
-            name__in=valid_item_names
-        ).filter(
-            is_available=True
-        ).update(
+        # Old menu items that are not part of the official
+        # repository menu are hidden rather than deleted because
+        # old orders may still reference them.
+        old_items = (
+            MenuItem.objects
+            .exclude(name__in=valid_item_names)
+            .filter(is_available=True)
+        )
+
+        deactivated_old_items = old_items.update(
             is_available=False
         )
 
-        media_menu_dir = Path(settings.MEDIA_ROOT) / "menu"
+        media_menu_dir = (
+            Path(settings.MEDIA_ROOT) / "menu"
+        )
 
         for item_data in self.MENU_ITEMS:
             category = categories[item_data["category"]]
 
-            image_relative_path = f"menu/{item_data['image']}"
-            image_absolute_path = media_menu_dir / item_data["image"]
-
-            if not image_absolute_path.exists():
-                missing_images.append(item_data["image"])
-
-            item, created = MenuItem.objects.get_or_create(
-                category=category,
-                name=item_data["name"],
-                defaults={
-                    "description": item_data["description"],
-                    "price": item_data["price"],
-                    "is_available": True,
-                    "image": image_relative_path,
-                },
+            image_relative_path = (
+                f"menu/{item_data['image']}"
             )
 
-            if created:
+            image_absolute_path = (
+                media_menu_dir / item_data["image"]
+            )
+
+            if not image_absolute_path.exists():
+                missing_images.append(
+                    item_data["image"]
+                )
+
+            # ----------------------------------------------------
+            # Find every record with this menu name.
+            # ----------------------------------------------------
+
+            matching_items = list(
+                MenuItem.objects
+                .filter(name=item_data["name"])
+                .order_by("id")
+            )
+
+            item = None
+
+            # Prefer an existing record already belonging to the
+            # intended category.
+            for candidate in matching_items:
+                if candidate.category_id == category.id:
+                    item = candidate
+                    break
+
+            # Otherwise reuse the oldest existing record.
+            if item is None and matching_items:
+                item = matching_items[0]
+
+            # ----------------------------------------------------
+            # Create missing item.
+            # ----------------------------------------------------
+
+            if item is None:
+                item = MenuItem.objects.create(
+                    category=category,
+                    name=item_data["name"],
+                    description=item_data["description"],
+                    price=item_data["price"],
+                    is_available=True,
+                    image=image_relative_path,
+                )
+
                 created_items += 1
-                continue
 
-            changed = False
+            else:
+                changed = False
 
-            if item.category_id != category.id:
-                item.category = category
-                changed = True
+                if item.category_id != category.id:
+                    item.category = category
+                    changed = True
 
-            if item.description != item_data["description"]:
-                item.description = item_data["description"]
-                changed = True
+                if item.description != item_data["description"]:
+                    item.description = item_data["description"]
+                    changed = True
 
-            if item.price != item_data["price"]:
-                item.price = item_data["price"]
-                changed = True
+                if item.price != item_data["price"]:
+                    item.price = item_data["price"]
+                    changed = True
 
-            if not item.is_available:
-                item.is_available = True
-                changed = True
+                if not item.is_available:
+                    item.is_available = True
+                    changed = True
 
-            current_image = str(item.image) if item.image else ""
+                current_image = (
+                    str(item.image)
+                    if item.image
+                    else ""
+                )
 
-            if current_image != image_relative_path:
-                item.image = image_relative_path
-                changed = True
+                if current_image != image_relative_path:
+                    item.image = image_relative_path
+                    changed = True
 
-            if changed:
-                item.save()
-                updated_items += 1
+                if changed:
+                    item.save()
+                    updated_items += 1
+
+            # ----------------------------------------------------
+            # Deactivate duplicate copies of the same official
+            # menu item.
+            #
+            # We do NOT delete them because historical orders may
+            # reference those records.
+            # ----------------------------------------------------
+
+            duplicate_ids = [
+                duplicate.id
+                for duplicate in matching_items
+                if duplicate.id != item.id
+            ]
+
+            if duplicate_ids:
+                duplicate_count = (
+                    MenuItem.objects
+                    .filter(
+                        id__in=duplicate_ids,
+                        is_available=True,
+                    )
+                    .update(is_available=False)
+                )
+
+                deactivated_duplicates += duplicate_count
+
+        # ========================================================
+        # FINAL CATEGORY CLEANUP
+        # ========================================================
+
+        # Categories are kept because they are repository/demo
+        # configuration and may be useful in the admin interface.
+        # The menu template only displays categories containing
+        # available items.
 
         # ========================================================
         # OUTPUT
@@ -716,7 +807,7 @@ class Command(BaseCommand):
         self.stdout.write("")
         self.stdout.write(
             self.style.SUCCESS(
-                "IDDS international restaurant menu is ready."
+                "IDDS DEMO DATA SYNCHRONIZATION COMPLETE"
             )
         )
         self.stdout.write("")
@@ -726,15 +817,38 @@ class Command(BaseCommand):
         )
 
         self.stdout.write(
+            f"Tables updated: {updated_tables}"
+        )
+
+        self.stdout.write(
             f"Categories created: {created_categories}"
         )
 
         self.stdout.write(
-            f"Menu items created: {created_items}"
+            f"Categories updated: {updated_categories}"
         )
 
         self.stdout.write(
-            f"Menu items updated: {updated_items}"
+            f"Official menu items created: {created_items}"
+        )
+
+        self.stdout.write(
+            f"Official menu items updated: {updated_items}"
+        )
+
+        self.stdout.write(
+            f"Duplicate menu items deactivated: "
+            f"{deactivated_duplicates}"
+        )
+
+        self.stdout.write(
+            f"Old menu items deactivated: "
+            f"{deactivated_old_items}"
+        )
+
+        self.stdout.write(
+            f"Official menu items expected: "
+            f"{len(self.MENU_ITEMS)}"
         )
 
         self.stdout.write(
@@ -749,9 +863,14 @@ class Command(BaseCommand):
             self.stdout.write("")
             self.stdout.write(
                 self.style.WARNING(
-                    "The following image files were not found in media/menu:"
+                    "The following image files were not found "
+                    "in media/menu:"
                 )
             )
 
             for image_name in missing_images:
-                self.stdout.write(f"  - {image_name}")
+                self.stdout.write(
+                    f"  - {image_name}"
+                )
+
+        self.stdout.write("")

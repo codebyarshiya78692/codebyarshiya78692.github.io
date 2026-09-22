@@ -9,7 +9,7 @@ app_name = "accounts"
 urlpatterns = [
 
     # ========================================================
-    # AUTHENTICATION
+    # UNIFIED LOGIN
     # ========================================================
 
     path(
@@ -35,24 +35,27 @@ urlpatterns = [
     ),
 
     # ========================================================
-    # CHEF
+    # LEGACY ROLE LOGIN URLS
+    #
+    # These now use the SAME login page so there is only
+    # one real login experience.
     # ========================================================
 
     path(
         "chef/login/",
-        views.chef_login,
+        views.customer_login,
         name="chef_login",
+    ),
+
+    path(
+        "waiter/login/",
+        views.customer_login,
+        name="waiter_login",
     ),
 
     # ========================================================
     # WAITER
     # ========================================================
-
-    path(
-        "waiter/login/",
-        views.waiter_login,
-        name="waiter_login",
-    ),
 
     path(
         "waiter/",

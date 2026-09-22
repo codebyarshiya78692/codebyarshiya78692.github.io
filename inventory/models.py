@@ -136,3 +136,31 @@ class StockMovement(models.Model):
             self.quantity *
             self.unit_cost
         )
+
+
+class MenuIngredient(models.Model):
+    menu_item_id = models.IntegerField()
+
+    ingredient = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE,
+        related_name="menu_links",
+    )
+
+    quantity_required = models.DecimalField(
+        max_digits=12,
+        decimal_places=3,
+        default=Decimal("0.000"),
+    )
+
+    class Meta:
+        unique_together = (
+            "menu_item_id",
+            "ingredient",
+        )
+
+    def __str__(self):
+        return (
+            f"{self.menu_item_id} -> "
+            f"{self.ingredient.name}"
+        )

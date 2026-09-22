@@ -43,9 +43,17 @@ urlpatterns = [
         name="my_orders",
     ),
 
+    # Customer order details
     path(
         "my-orders/<int:order_id>/",
         views.order_detail,
         name="order_detail",
+    ),
+
+    # Customer order tracking
+    path(
+        "<int:order_id>/track/",
+        views.order_detail,
+        name="order_tracking",
     ),
 ]

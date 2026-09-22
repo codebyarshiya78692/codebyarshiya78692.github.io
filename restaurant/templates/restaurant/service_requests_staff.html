@@ -196,7 +196,7 @@ Staff Service Requests | IDDS
 
                                 <form
                                     method="post"
-                                    action="{% url 'accept_service_request' service_request.id %}"
+                                    action="{% url 'restaurant:accept_service_request' service_request.id %}"
                                 >
 
                                     {% csrf_token %}
@@ -350,7 +350,7 @@ Staff Service Requests | IDDS
 
                                 <form
                                     method="post"
-                                    action="{% url 'complete_service_request' service_request.id %}"
+                                    action="{% url 'restaurant:complete_service_request' service_request.id %}"
                                 >
 
                                     {% csrf_token %}

@@ -148,6 +148,10 @@ def menu(request, table_id):
         .order_by("name")
     )
 
+    # --------------------------------------------------------
+    # REAL SESSION CART
+    # --------------------------------------------------------
+
     cart = request.session.get(
         "cart",
         {}
@@ -172,6 +176,12 @@ def menu(request, table_id):
             "session": session,
             "categories": categories,
             "cart_count": cart_count,
+
+            # IMPORTANT:
+            # Send the actual Django session cart to menu.html
+            # so the JavaScript knows which items are already
+            # in the cart after a refresh.
+            "cart": cart,
         }
     )
 
@@ -267,6 +277,11 @@ def add_to_cart(request, item_id):
             "success": True,
             "message": f"{item.name} added to cart.",
             "cart_count": cart_count,
+
+            # Return the actual quantity as well.
+            # This lets the menu stay synchronized with
+            # the server-side cart.
+            "quantity": new_quantity,
         }
     )
 
@@ -430,6 +445,10 @@ def update_cart(request, item_id):
 
         quantity = 1
 
+    # --------------------------------------------------------
+    # REMOVE ITEM
+    # --------------------------------------------------------
+
     if quantity <= 0:
 
         cart.pop(
@@ -437,15 +456,51 @@ def update_cart(request, item_id):
             None
         )
 
+        new_quantity = 0
+
+    # --------------------------------------------------------
+    # UPDATE QUANTITY
+    # --------------------------------------------------------
+
     else:
 
-        cart[item_key] = min(
+        new_quantity = min(
             quantity,
             20
         )
 
+        cart[item_key] = new_quantity
+
     request.session["cart"] = cart
     request.session.modified = True
+
+    cart_count = sum(
+        int(value)
+        for value in cart.values()
+    )
+
+    # --------------------------------------------------------
+    # MENU AJAX REQUEST
+    # --------------------------------------------------------
+
+    # The menu's + / - JavaScript sends X-Requested-With.
+    # Return JSON so it does not navigate away from the menu.
+    if request.headers.get(
+        "X-Requested-With"
+    ) == "XMLHttpRequest":
+
+        return JsonResponse(
+            {
+                "success": True,
+                "quantity": new_quantity,
+                "cart_count": cart_count,
+                "removed": new_quantity == 0,
+            }
+        )
+
+    # --------------------------------------------------------
+    # NORMAL CART FORM REQUEST
+    # --------------------------------------------------------
 
     return redirect(
         "cart"
@@ -602,6 +657,8 @@ def place_order(request):
         update_fields=["status"]
     )
 
+    # Clear the customer's cart after the order
+    # has been successfully created.
     request.session["cart"] = {}
 
     request.session["last_order_id"] = order.id
@@ -652,10 +709,10 @@ def order_confirmation(request, order_id):
 
 def order_tracking(request, order_id):
 
-    session_id = request.session.get(
-        "dining_session_id"
-    )
-
+    # The tracking URL contains the order ID itself.
+    # Do not require the browser's current dining_session_id
+    # to match the order. That session can change when the
+    # customer refreshes, switches roles, or returns later.
     order = get_object_or_404(
         Order.objects
         .select_related(
@@ -664,8 +721,7 @@ def order_tracking(request, order_id):
         .prefetch_related(
             "items"
         ),
-        id=order_id,
-        session_id=session_id
+        id=order_id
     )
 
     status_steps = [

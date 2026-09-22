@@ -4,14 +4,11 @@
 Billing | IDDS
 {% endblock %}
 
-
 {% block content %}
 
 <section class="section page-section">
 
     <div class="container">
-
-        <!-- HEADER -->
 
         <div class="page-heading reveal">
 
@@ -31,7 +28,9 @@ Billing | IDDS
         </div>
 
 
-        <!-- ACTIVE SESSIONS -->
+        <!-- =====================================================
+             ACTIVE DINING
+             ===================================================== -->
 
         <div class="confirmation-card reveal">
 
@@ -61,11 +60,27 @@ Billing | IDDS
                         <thead>
 
                             <tr>
-                                <th>Table</th>
-                                <th>Customer</th>
-                                <th>Orders</th>
-                                <th>Session Total</th>
-                                <th>Action</th>
+
+                                <th>
+                                    Table
+                                </th>
+
+                                <th>
+                                    Customer
+                                </th>
+
+                                <th>
+                                    Orders
+                                </th>
+
+                                <th>
+                                    Session Total
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
                             </tr>
 
                         </thead>
@@ -80,7 +95,8 @@ Billing | IDDS
                                     <td>
 
                                         <strong>
-                                            Table {{ session.table.table_number }}
+                                            Table
+                                            {{ session.table.table_number }}
                                         </strong>
 
                                     </td>
@@ -107,12 +123,34 @@ Billing | IDDS
 
                                     <td>
 
-                                        <a
-                                            href="{% url 'billing:generate_bill' session.id %}"
-                                            class="btn btn-primary"
-                                        >
-                                            Generate Bill
-                                        </a>
+                                        {% if session.bill %}
+
+                                            <a
+                                                href="{% url 'billing:bill_detail' session.bill.id %}"
+                                                class="btn btn-secondary"
+                                            >
+                                                View / Refresh Bill
+                                            </a>
+
+                                        {% else %}
+
+                                            <form
+                                                method="post"
+                                                action="{% url 'billing:generate_bill' session.id %}"
+                                            >
+
+                                                {% csrf_token %}
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-primary"
+                                                >
+                                                    Generate Bill
+                                                </button>
+
+                                            </form>
+
+                                        {% endif %}
 
                                     </td>
 
@@ -150,7 +188,9 @@ Billing | IDDS
         </div>
 
 
-        <!-- BILL HISTORY -->
+        <!-- =====================================================
+             BILL HISTORY
+             ===================================================== -->
 
         <div class="confirmation-card reveal">
 
@@ -180,12 +220,35 @@ Billing | IDDS
                         <thead>
 
                             <tr>
-                                <th>Bill</th>
-                                <th>Table</th>
-                                <th>Customer</th>
-                                <th>Status</th>
-                                <th>Total</th>
-                                <th>Action</th>
+
+                                <th>
+                                    Bill
+                                </th>
+
+                                <th>
+                                    Table
+                                </th>
+
+                                <th>
+                                    Customer
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Payment
+                                </th>
+
+                                <th>
+                                    Total
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
                             </tr>
 
                         </thead>
@@ -207,7 +270,8 @@ Billing | IDDS
 
 
                                     <td>
-                                        Table {{ bill.session.table.table_number }}
+                                        Table
+                                        {{ bill.session.table.table_number }}
                                     </td>
 
 
@@ -221,6 +285,21 @@ Billing | IDDS
                                         <span class="status-pill">
                                             {{ bill.get_status_display }}
                                         </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {% if bill.payment_method %}
+
+                                            {{ bill.get_payment_method_display }}
+
+                                        {% else %}
+
+                                            —
+
+                                        {% endif %}
 
                                     </td>
 

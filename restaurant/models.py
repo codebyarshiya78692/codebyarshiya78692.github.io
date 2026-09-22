@@ -2,6 +2,7 @@ from django.db import models
 
 
 class DiningTable(models.Model):
+
     STATUS_CHOICES = [
         ("available", "Available"),
         ("occupied", "Occupied"),
@@ -10,8 +11,14 @@ class DiningTable(models.Model):
         ("completed", "Completed"),
     ]
 
-    table_number = models.PositiveIntegerField(unique=True)
-    capacity = models.PositiveIntegerField(default=2)
+    table_number = models.PositiveIntegerField(
+        unique=True
+    )
+
+    capacity = models.PositiveIntegerField(
+        default=2
+    )
+
     status = models.CharField(
         max_length=30,
         choices=STATUS_CHOICES,
@@ -23,10 +30,12 @@ class DiningTable(models.Model):
 
 
 class MenuCategory(models.Model):
+
     name = models.CharField(
         max_length=100,
         unique=True,
     )
+
     description = models.TextField(
         blank=True,
     )
@@ -36,6 +45,7 @@ class MenuCategory(models.Model):
 
 
 class MenuItem(models.Model):
+
     category = models.ForeignKey(
         MenuCategory,
         on_delete=models.CASCADE,
@@ -59,13 +69,35 @@ class MenuItem(models.Model):
         default=True,
     )
 
-    # Actual food image uploaded through Django Admin
     image = models.ImageField(
         upload_to="menu/",
         blank=True,
         null=True,
-        help_text="Upload the food image for this menu item.",
+        help_text=(
+            "Upload the food image for this menu item."
+        ),
     )
+
+    @property
+    def menu_ingredients(self):
+        """
+        Return the recipe rows belonging to this menu item.
+
+        MenuIngredient currently stores menu_item_id rather
+        than a Django ForeignKey, so this property provides
+        the kitchen with a clean recipe lookup without changing
+        the existing database schema.
+        """
+
+        from inventory.models import MenuIngredient
+
+        return (
+            MenuIngredient.objects
+            .select_related("ingredient")
+            .filter(
+                menu_item_id=self.pk
+            )
+        )
 
     def __str__(self):
         return self.name

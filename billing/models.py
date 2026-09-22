@@ -2,14 +2,21 @@ from decimal import Decimal
 
 from django.db import models
 
-from orders.models import DiningSession, Order, OrderItem
+from orders.models import DiningSession, OrderItem
 
 
 class Bill(models.Model):
     STATUS_CHOICES = [
         ("draft", "Draft"),
         ("generated", "Generated"),
-        ("completed", "Completed"),
+        ("completed", "Paid"),
+    ]
+
+    PAYMENT_METHOD_CHOICES = [
+        ("cash", "Cash"),
+        ("card", "Card"),
+        ("upi", "UPI"),
+        ("other", "Other"),
     ]
 
     session = models.OneToOneField(
@@ -53,8 +60,22 @@ class Bill(models.Model):
         blank=True,
     )
 
+    payment_method = models.CharField(
+        max_length=20,
+        choices=PAYMENT_METHOD_CHOICES,
+        blank=True,
+    )
+
+    paid_at = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+
     def __str__(self):
-        return f"Bill #{self.id} - Table {self.session.table.table_number}"
+        return (
+            f"Bill #{self.id} - "
+            f"Table {self.session.table.table_number}"
+        )
 
 
 class BillItem(models.Model):
@@ -89,4 +110,6 @@ class BillItem(models.Model):
     )
 
     def __str__(self):
-        return f"{self.item_name} x {self.quantity}"
+        return (
+            f"{self.item_name} x {self.quantity}"
+        )

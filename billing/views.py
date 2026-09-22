@@ -7,7 +7,6 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from orders.models import DiningSession, OrderItem
-from restaurant.models import DiningTable
 
 from .models import Bill, BillItem
 
@@ -18,8 +17,7 @@ SERVICE_CHARGE_RATE = Decimal("0.10")
 
 def _staff_only(request):
     """
-    Billing is available to Admin and Waiter users.
-    Chef and Customer users cannot access billing.
+    Allow billing access to administrators and Waiter staff.
     """
 
     if not request.user.is_authenticated:
@@ -27,17 +25,17 @@ def _staff_only(request):
 
     return (
         request.user.is_superuser
-        or request.user.groups.filter(name="Waiter").exists()
+        or request.user.groups.filter(
+            name="Waiter"
+        ).exists()
     )
 
 
 @login_required
 def billing_dashboard(request):
     """
-    Staff billing dashboard.
-
-    Shows active dining sessions that can be billed and
-    previously generated bills.
+    Show active dining sessions and generated bills
+    to billing staff.
     """
 
     if not _staff_only(request):
@@ -49,10 +47,18 @@ def billing_dashboard(request):
 
     active_sessions = (
         DiningSession.objects
-        .filter(status="active")
-        .select_related("table")
-        .prefetch_related("orders")
-        .order_by("-started_at")
+        .filter(
+            status="active"
+        )
+        .select_related(
+            "table"
+        )
+        .prefetch_related(
+            "orders"
+        )
+        .order_by(
+            "-started_at"
+        )
     )
 
     bills = (
@@ -61,19 +67,21 @@ def billing_dashboard(request):
             "session",
             "session__table",
         )
-        .prefetch_related("items")
-        .order_by("-id")
+        .prefetch_related(
+            "items"
+        )
+        .order_by(
+            "-id"
+        )
     )
-
-    context = {
-        "active_sessions": active_sessions,
-        "bills": bills,
-    }
 
     return render(
         request,
         "billing/dashboard.html",
-        context,
+        {
+            "active_sessions": active_sessions,
+            "bills": bills,
+        },
     )
 
 
@@ -81,7 +89,7 @@ def billing_dashboard(request):
 @transaction.atomic
 def generate_bill(request, session_id):
     """
-    Generate or refresh a bill for a dining session.
+    Create or refresh the bill for an active dining session.
     """
 
     if not _staff_only(request):
@@ -92,10 +100,14 @@ def generate_bill(request, session_id):
         return redirect("home")
 
     if request.method != "POST":
-        return redirect("billing:dashboard")
+        return redirect(
+            "billing:dashboard"
+        )
 
     session = get_object_or_404(
-        DiningSession.objects.select_related("table"),
+        DiningSession.objects.select_related(
+            "table"
+        ),
         id=session_id,
     )
 
@@ -105,7 +117,11 @@ def generate_bill(request, session_id):
             "This dining session is no longer active.",
         )
 
-        existing_bill = getattr(session, "bill", None)
+        existing_bill = getattr(
+            session,
+            "bill",
+            None,
+        )
 
         if existing_bill:
             return redirect(
@@ -113,7 +129,9 @@ def generate_bill(request, session_id):
                 bill_id=existing_bill.id,
             )
 
-        return redirect("billing:dashboard")
+        return redirect(
+            "billing:dashboard"
+        )
 
     bill, created = Bill.objects.get_or_create(
         session=session,
@@ -122,25 +140,40 @@ def generate_bill(request, session_id):
     if not created:
         bill.items.all().delete()
 
+        bill.payment_method = ""
+        bill.paid_at = None
+
     order_items = (
         OrderItem.objects
-        .filter(order__session=session)
+        .filter(
+            order__session=session
+        )
+        .exclude(
+            order__status="cancelled"
+        )
         .select_related(
             "menu_item",
             "order",
         )
-        .order_by("order__created_at", "id")
+        .order_by(
+            "order__created_at",
+            "id",
+        )
     )
 
-    subtotal = Decimal("0.00")
+    subtotal = Decimal(
+        "0.00"
+    )
 
     for order_item in order_items:
-        quantity = order_item.quantity
-        unit_price = order_item.unit_price
 
         item_total = (
-            unit_price
-            * Decimal(str(quantity))
+            order_item.unit_price
+            * Decimal(
+                str(
+                    order_item.quantity
+                )
+            )
         )
 
         subtotal += item_total
@@ -149,24 +182,32 @@ def generate_bill(request, session_id):
             bill=bill,
             order_item=order_item,
             item_name=order_item.item_name,
-            unit_price=unit_price,
-            quantity=quantity,
+            unit_price=order_item.unit_price,
+            quantity=order_item.quantity,
             total_price=item_total,
         )
 
     tax = (
-        subtotal * TAX_RATE
-    ).quantize(Decimal("0.01"))
+        subtotal
+        * TAX_RATE
+    ).quantize(
+        Decimal("0.01")
+    )
 
     service_charge = (
-        subtotal * SERVICE_CHARGE_RATE
-    ).quantize(Decimal("0.01"))
+        subtotal
+        * SERVICE_CHARGE_RATE
+    ).quantize(
+        Decimal("0.01")
+    )
 
     total_amount = (
         subtotal
         + tax
         + service_charge
-    ).quantize(Decimal("0.01"))
+    ).quantize(
+        Decimal("0.01")
+    )
 
     bill.subtotal = subtotal
     bill.tax = tax
@@ -183,13 +224,17 @@ def generate_bill(request, session_id):
             "total_amount",
             "status",
             "generated_at",
+            "payment_method",
+            "paid_at",
         ]
     )
 
-    # Put the table into billing state.
     session.table.status = "billing"
+
     session.table.save(
-        update_fields=["status"]
+        update_fields=[
+            "status"
+        ]
     )
 
     messages.success(
@@ -206,7 +251,7 @@ def generate_bill(request, session_id):
 @login_required
 def bill_detail(request, bill_id):
     """
-    Staff bill detail page.
+    Show one bill to billing staff.
     """
 
     if not _staff_only(request):
@@ -222,7 +267,9 @@ def bill_detail(request, bill_id):
             "session",
             "session__table",
         )
-        .prefetch_related("items"),
+        .prefetch_related(
+            "items"
+        ),
         id=bill_id,
     )
 
@@ -231,60 +278,19 @@ def bill_detail(request, bill_id):
         "billing/detail.html",
         {
             "bill": bill,
-        },
-    )
-
-
-def customer_bill(request):
-    """
-    Customer-facing bill page.
-
-    Uses the dining session stored in the customer's browser
-    session, so customers cannot simply view another table's bill.
-    """
-
-    dining_session_id = request.session.get(
-        "dining_session_id"
-    )
-
-    if not dining_session_id:
-        messages.warning(
-            request,
-            "No active dining session was found.",
-        )
-        return redirect("table_selection")
-
-    dining_session = get_object_or_404(
-        DiningSession.objects.select_related("table"),
-        id=dining_session_id,
-    )
-
-    bill = get_object_or_404(
-        Bill.objects
-        .filter(session=dining_session)
-        .select_related(
-            "session",
-            "session__table",
-        )
-        .prefetch_related("items"),
-    )
-
-    return render(
-        request,
-        "billing/customer_bill.html",
-        {
-            "bill": bill,
+            "payment_methods": (
+                Bill.PAYMENT_METHOD_CHOICES
+            ),
         },
     )
 
 
 @login_required
+@transaction.atomic
 def complete_bill(request, bill_id):
     """
-    Complete payment and close the dining session.
-
-    The table is returned to AVAILABLE so another customer
-    can start a new dining session.
+    Mark a generated bill as paid, record the payment method,
+    complete the dining session and release the table.
     """
 
     if not _staff_only(request):
@@ -300,56 +306,167 @@ def complete_bill(request, bill_id):
             bill_id=bill_id,
         )
 
-    with transaction.atomic():
+    bill = get_object_or_404(
+        Bill.objects.select_related(
+            "session",
+            "session__table",
+        ),
+        id=bill_id,
+    )
 
-        bill = get_object_or_404(
-            Bill.objects
-            .select_related(
-                "session",
-                "session__table",
-            ),
-            id=bill_id,
+    if bill.status == "completed":
+
+        messages.info(
+            request,
+            f"Bill #{bill.id} has already been paid.",
         )
 
-        session = bill.session
-        table = session.table
-
-        bill.status = "completed"
-        bill.save(
-            update_fields=["status"]
+        return redirect(
+            "billing:bill_detail",
+            bill_id=bill.id,
         )
 
-        # Complete all orders belonging to this dining session.
-        session.orders.exclude(
-            status="cancelled"
-        ).update(
-            status="completed",
-            completed_at=timezone.now(),
+    if bill.status != "generated":
+
+        messages.error(
+            request,
+            "Generate the bill before completing the payment.",
         )
 
-        session.status = "completed"
-        session.completed_at = timezone.now()
-
-        session.save(
-            update_fields=[
-                "status",
-                "completed_at",
-            ]
+        return redirect(
+            "billing:bill_detail",
+            bill_id=bill.id,
         )
 
-        table.status = "available"
-
-        table.save(
-            update_fields=["status"]
+    payment_method = (
+        request.POST
+        .get(
+            "payment_method",
+            "",
         )
+        .strip()
+        .lower()
+    )
+
+    valid_methods = {
+        choice[0]
+        for choice in Bill.PAYMENT_METHOD_CHOICES
+    }
+
+    if payment_method not in valid_methods:
+
+        messages.error(
+            request,
+            "Please select a valid payment method.",
+        )
+
+        return redirect(
+            "billing:bill_detail",
+            bill_id=bill.id,
+        )
+
+    paid_at = timezone.now()
+
+    bill.status = "completed"
+    bill.payment_method = payment_method
+    bill.paid_at = paid_at
+
+    bill.save(
+        update_fields=[
+            "status",
+            "payment_method",
+            "paid_at",
+        ]
+    )
+
+    session = bill.session
+
+    session.orders.exclude(
+        status="cancelled"
+    ).update(
+        status="completed",
+        completed_at=paid_at,
+    )
+
+    session.status = "completed"
+    session.completed_at = paid_at
+
+    session.save(
+        update_fields=[
+            "status",
+            "completed_at",
+        ]
+    )
+
+    table = session.table
+
+    table.status = "available"
+
+    table.save(
+        update_fields=[
+            "status"
+        ]
+    )
 
     messages.success(
         request,
-        f"Payment completed for Bill #{bill.id}. "
+        f"Bill #{bill.id} paid by "
+        f"{bill.get_payment_method_display()}. "
         f"Table {table.table_number} is now available.",
     )
 
     return redirect(
         "billing:bill_detail",
         bill_id=bill.id,
+    )
+
+
+@login_required
+def customer_bill(request):
+    """
+    Show the bill for the customer's current dining session.
+    """
+
+    dining_session_id = request.session.get(
+        "dining_session_id"
+    )
+
+    if not dining_session_id:
+
+        messages.warning(
+            request,
+            "No active dining session was found.",
+        )
+
+        return redirect(
+            "table_selection"
+        )
+
+    dining_session = get_object_or_404(
+        DiningSession.objects.select_related(
+            "table"
+        ),
+        id=dining_session_id,
+    )
+
+    bill = get_object_or_404(
+        Bill.objects
+        .filter(
+            session=dining_session
+        )
+        .select_related(
+            "session",
+            "session__table",
+        )
+        .prefetch_related(
+            "items"
+        ),
+    )
+
+    return render(
+        request,
+        "billing/customer_bill.html",
+        {
+            "bill": bill,
+        },
     )

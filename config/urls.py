@@ -19,6 +19,10 @@ from restaurant.views import (
 from restaurant.service_views import (
     create_service_request,
     service_requests,
+    staff_service_requests,
+    staff_service_request_detail,
+    accept_service_request,
+    complete_service_request,
 )
 
 
@@ -152,6 +156,35 @@ urlpatterns = [
 
 
     # ============================================================
+    # STAFF SERVICE REQUESTS
+    # ============================================================
+
+    path(
+        "service-requests/staff/",
+        staff_service_requests,
+        name="staff_service_requests",
+    ),
+
+    path(
+        "service-requests/staff/<int:request_id>/",
+        staff_service_request_detail,
+        name="staff_service_request_detail",
+    ),
+
+    path(
+        "service-requests/staff/<int:request_id>/accept/",
+        accept_service_request,
+        name="staff_service_request_accept",
+    ),
+
+    path(
+        "service-requests/staff/<int:request_id>/complete/",
+        complete_service_request,
+        name="staff_service_request_complete",
+    ),
+
+
+    # ============================================================
     # KITCHEN
     # ============================================================
 
@@ -205,10 +238,6 @@ urlpatterns = [
 # ================================================================
 # MEDIA FILES
 # ================================================================
-#
-# The project is being run locally with Django's development
-# server, so serve uploaded menu images directly.
-#
 
 urlpatterns += static(
     settings.MEDIA_URL,

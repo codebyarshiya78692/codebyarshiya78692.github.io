@@ -4,14 +4,11 @@
 Bill #{{ bill.id }} | IDDS
 {% endblock %}
 
-
 {% block content %}
 
 <section class="section page-section">
 
     <div class="container narrow-container">
-
-        <!-- HEADER -->
 
         <div class="page-heading reveal">
 
@@ -32,11 +29,11 @@ Bill #{{ bill.id }} | IDDS
         </div>
 
 
-        <!-- BILL CARD -->
-
         <div class="confirmation-card reveal">
 
-            <!-- STATUS -->
+            <!-- =================================================
+                 PAYMENT STATUS
+                 ================================================= -->
 
             <div class="current-status">
 
@@ -48,18 +45,29 @@ Bill #{{ bill.id }} | IDDS
                     {{ bill.get_status_display }}
                 </h2>
 
+
                 {% if bill.status == "completed" %}
 
                     <p class="muted">
-                        Payment has been completed and the table
-                        has been returned to available status.
+
+                        Payment completed using
+                        {{ bill.get_payment_method_display }}
+
+                        on
+                        {{ bill.paid_at|date:"d M Y, h:i A" }}.
+
+                        The dining session is closed and
+                        the table is available again.
+
                     </p>
 
                 {% else %}
 
                     <p class="muted">
-                        Review the order items and complete payment
-                        when the customer is ready to leave.
+
+                        Review the order items and select
+                        the customer's payment method.
+
                     </p>
 
                 {% endif %}
@@ -67,7 +75,9 @@ Bill #{{ bill.id }} | IDDS
             </div>
 
 
-            <!-- ITEMS -->
+            <!-- =================================================
+                 ORDER ITEMS
+                 ================================================= -->
 
             <div class="tracking-items">
 
@@ -81,13 +91,10 @@ Bill #{{ bill.id }} | IDDS
                     <div class="summary-row">
 
                         <span>
-
                             {{ item.item_name }}
-
-                            × {{ item.quantity }}
-
+                            ×
+                            {{ item.quantity }}
                         </span>
-
 
                         <strong>
                             ₹{{ item.total_price|floatformat:2 }}
@@ -106,7 +113,9 @@ Bill #{{ bill.id }} | IDDS
             </div>
 
 
-            <!-- SUMMARY -->
+            <!-- =================================================
+                 BILL SUMMARY
+                 ================================================= -->
 
             <div class="bill-summary">
 
@@ -164,7 +173,9 @@ Bill #{{ bill.id }} | IDDS
             </div>
 
 
-            <!-- ACTIONS -->
+            <!-- =================================================
+                 ACTIONS
+                 ================================================= -->
 
             <div class="tracking-actions">
 
@@ -181,16 +192,46 @@ Bill #{{ bill.id }} | IDDS
                     <form
                         method="post"
                         action="{% url 'billing:complete_bill' bill.id %}"
-                        style="display: inline;"
                     >
 
                         {% csrf_token %}
 
+
+                        <label
+                            for="payment_method"
+                            class="form-label"
+                        >
+                            Payment method
+                        </label>
+
+
+                        <select
+                            name="payment_method"
+                            id="payment_method"
+                            required
+                        >
+
+                            <option value="">
+                                Select payment method
+                            </option>
+
+                            {% for value,label in payment_methods %}
+
+                                <option value="{{ value }}">
+                                    {{ label }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+
                         <button
                             type="submit"
                             class="btn btn-primary"
+                            style="margin-top: 0.75rem;"
                         >
-                            Complete Payment &amp; Close Table
+                            Mark Paid &amp; Close Table
                         </button>
 
                     </form>
